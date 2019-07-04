@@ -1,0 +1,215 @@
+body {
+  background-color: #F8F8F8;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 13px;
+}
+p {
+  margin: 0;
+  padding: 0;
+}
+fieldset {
+  background-color: #EEE;
+  border: 2px solid #AAA;
+  white-space: nowrap;
+}
+legend {
+  font-weight: bold;
+}
+table {
+  border:0;
+}
+th {
+  background-color: #DDD;
+  padding: 0;
+}
+#p, #_p {
+  background-color: #FFF;
+  border: 2px solid #AAA;
+}
+.highlightedPath {
+  stroke: black;
+  stroke-width:1;
+  fill: black;
+  fill-opacity:0.3;
+}
+#p1, #_p1 {
+  fill: #00009C;
+  fill-opacity: 0.06;
+  stroke: #D3D3DA;
+  stroke-opacity: 1.0;
+  stroke-width: 0.8;
+}
+#p2, #_p2 {
+  fill: #9C0000;
+  fill-opacity: 0.06;
+  stroke: #FFA07A;
+  stroke-opacity: 1.0;
+  stroke-width: 0.8;
+}
+#p3, #_p3 {
+  fill: #80ff9C;
+  fill-opacity: 0.5;
+  stroke: #003300;
+  stroke-opacity: 1.0;
+  stroke-width: 0.8;
+}
+#svg_source_textarea, #benchmark_exports_textarea {
+  height: 300px;
+  width: 1230px;
+}
+#svgcontainer {
+  margin-right: 2px;
+  margin-top: 6px;
+}
+#benchmark_fieldset {
+  height: 350px;
+  width: 367px;
+}
+.buttons {
+  background-color: #666;
+  border-radius: 10px;
+  color: white;
+  cursor: pointer;
+  display: inline-block;
+  font-size: 13px;
+  line-height: 20px;
+  margin-bottom: 2px;
+  margin-top: 2px;
+  padding: 0 12px;
+  text-align: center;
+  white-space: nowrap;
+}
+.subpolylinks {
+  cursor: pointer;
+  font-size: 13px;
+  padding: 2px;
+}
+.subpolylinks:hover {
+  background-color:#BBB;
+}
+/* To prevent odd text resizing in mobile Safari */
+@media only screen and (max-device-width: 480px) {
+  .body, p, fieldset, td, th {
+    -webkit-text-size-adjust: 100%
+  }
+}
+.polygon_explorer {
+  border-collapse: collapse;
+  text-align: left;
+  white-space: normal;
+  width: 461px;
+}
+.polygon_explorer > tr > th, .polygon_explorer > tr > td,
+.polygon_explorer > tbody > tr > th, .polygon_explorer > tbody > tr > td
+{
+  border:1px solid #666;
+  padding: 3px 4px 3px 4px;
+  vertical-align:top;
+}
+.polygons_fieldset {
+  border-collapse: collapse;
+  width: 100%;
+}
+.polygons_fieldset td {
+  vertical-align: top;
+  white-space: nowrap;
+}
+.polygons_fieldset input[type=radio] {
+  margin-left: 0;
+}
+.random {
+  border-collapse: collapse;
+  width: 100%;
+}
+.random td {
+  padding: 0;
+  padding-right: 10px;
+}
+.random_inputs {
+  width: 25px
+}
+.random th {
+  background-color: transparent;
+  padding: 0;
+}
+.random_new_th {
+  background-color: transparent;
+}
+.random_new_th button {
+  margin: 0;
+}
+.random button, .random input {
+  margin-bottom: 0;
+  margin-top: 0;
+}
+#subj_polygon_count {
+  margin-bottom: 2px;
+}
+.filltype_cliptype {
+  border-collapse: collapse;
+}
+  .filltype_cliptype td {
+    padding: 0;
+    vertical-align: top;
+  }
+.offset_outer {
+  border-collapse: collapse;
+  width: 100%;
+}
+  .offset_outer td {
+    padding: 0;
+    vertical-align: top;
+    white-space: nowrap;
+  }
+  .offset_outer input[type=radio] {
+    margin-left: 0;
+  }
+  .offset_inner input[type=text] {
+    margin-bottom: 2px;
+  }
+.offset_inner {
+  border-collapse: collapse;
+}
+  .offset_inner td {
+    height: 100%;
+    vertical-align: top;
+  }
+#custom_polygons_fieldset, #random_polygons_fieldset, #svg_source_container, #enlarged_svg {
+  display: none;
+}
+.custom_polygon_input {
+  height: 15px;
+  line-height: 15px;
+  padding: 2px;
+  width: 285px;
+}
+#polygon_explorer_string_inp {
+  height:15px;
+  line-height: 15px;
+  margin: 0;
+  padding: 2px;
+  width: 371px;
+}
+.custom_polygon_inputs_table {
+  border-collapse: collapse;
+}
+.bench {
+  border-collapse: collapse;
+  margin-bottom: 10px;
+  width: 100%;
+  white-space: nowrap;
+}
+.bench td, .bench th {
+  border: 1px solid #444;
+  font-size: 12px;
+  padding: 2px;
+  text-align: left;
+}
+.bench tfoot td {
+  background-color: #DDD;
+  font-weight: bold;
+}
+/* for minus / plus buttons */
+.creaser {
+  width: 2em;
+}

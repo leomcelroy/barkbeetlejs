@@ -1,4 +1,4 @@
-const bitChoice = {
+export const bitChoice = {
   mdf: {
     2: {
       diameter: 2,
@@ -295,7 +295,7 @@ const bitChoice = {
   },
 };
 
-let presets6mm = {
+export const presets6mm = {
   mdf: {
     chiploads: 0.25,
     passdepths: 17,
@@ -346,33 +346,4 @@ let presets6mm = {
     passdepths: 0.6,
     rampAngle: 5,
   },
-}
-
-const output = (input, rpm, presets6mm, presetDiameter, plungRateReductionFactor) => {
-  let {materialToCut, millingBitDiameter, numberOfFlutes} = input;
-
-  let feedrate = (presets6mm[materialToCut].chiploads * rpm * numberOfFlutes * millingBitDiameter)/presetDiameter;
-  let plungerate = feedrate * plungRateReductionFactor;
-
-  let fluteReduction = 1-numberOfFlutes*.15;
-
-  let passDepth = presets6mm[materialToCut].passdepths/presetDiameter*millingBitDiameter*(fluteReduction);
-  let rampAngle = presets6mm[materialToCut].rampAngle;
-
-  return {
-    feedrate,
-    plungerate,
-    passDepth,
-    rampAngle,
-  };
-}
-
-export const calculateSettings = (material, bitDiameter, numberOfFlutes, rpm, plungRateReductionFactor = 0.6) => {
-  let input = {
-    materialToCut: material,
-    millingBitDiameter: bitDiameter,
-    numberOfFlutes: numberOfFlutes,
-  };
-
-  return output(input, rpm, presets6mm, 6, plungRateReductionFactor);
 }

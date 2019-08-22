@@ -10,7 +10,7 @@ let flutes = 1;
 let feedRate = 3600;
 let plungeRate = 2100;
 let passDepth = .6;
-//let rampAngle
+let rampAngle = 90;
 
 // from settings
 let units = "mm"
@@ -51,6 +51,7 @@ export const params = {
   plungeRate, //used
   tolerance,
   toolDiameter,
+  rampAngle,
   // toolRadius: toolDiameter/2,
   // flutes,
 }

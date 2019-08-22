@@ -1,26 +1,25 @@
 **** TODO ****
 -generate settings from material and thickness inputs
-
 -auto tabs
 -place tabs
-
 -auto dogbone
-
 -reorder toolpaths
-
+-gcode file naming when exporting
 -move origin location
+-box select
+-double click to deselect
+-ramp plunge, and angle
 
 **** Would Be Good ****
+-display tool in toolpath list
 -make toolpath list draggable
--double click to deselect
 -import (dxf, makerjs)
 -add more info about default settings
 -climb and conventional milling
 -detecting interior contours
--box selection
--ramp plunge, and angle
 
 **** Maybe ****
+-export same tools into same files and steps
 -switch to new framework? library? (my lit system, svelte, solidjs)
 -default export all gcode files when none selected
 -replace react with lit-html

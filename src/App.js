@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import {Button, Heading, Pane, Paragraph} from 'evergreen-ui';
 import './App.css';
 
+import {MillingCalculator} from './components/MillingCalculator.js';
+
 import simplify from 'simplify-js';
 
 import * as utils from './utils.js';
@@ -24,7 +26,7 @@ import {renderLine, connectPoints} from './unmakerjs/primitives.js';
 
 import store from "./store.js"; //this is my global state library, this is the only file that will getState() it will pass that to all sub components or should i import store in respective components
 
-const TOLERANCE = 1;
+const TOLERANCE = .1;
 const HQ = false;
 
 const linesToPolylinePoints = (lines, lastIndex) => lines.map((line, i) => {
@@ -47,7 +49,6 @@ const App = () => {
     thicknessSubmit : false,
     materialSubmit: false,
     originSubmit: false,
-    initialized: true, //will be false
     groupHovered: [],
   });
 
@@ -116,8 +117,8 @@ const App = () => {
     initialized();
   };
 
-  let set = calculateSettings("aluminum_roughing", 3, 1, 60000);
-  console.log("settings", set);
+  //let set = calculateSettings("aluminum_roughing", 3, 1, 18000);
+  //console.log("settings", set);
 
   let viewModel = Object.entries(store.state.contours).map(([id, lines]) => (
     <g
@@ -222,22 +223,23 @@ const App = () => {
 
       <div className="sidebar">
         <div>
-          <Heading>Settings</Heading>
-          <Pane marginTop={4}> <MaterialType firstSubmit={firstSubmit}/></Pane>
-          <Pane marginTop={4}> <MaterialThickness firstSubmit={firstSubmit}/></Pane>
-          <Pane marginTop={4}> <Units/></Pane>
-          <Pane marginTop={4}> <Origin firstSubmit={firstSubmit}/></Pane>
-          {(!state.initialized) ? <Paragraph marginTop={4}>select settings before editting options</Paragraph> : ""}
-          <Pane> <AdvancedOptions disabled={!state.initialized} setDefault={true} params={store.getState().defaultParameters}/></Pane>
+          <MillingCalculator/>
+
+          <br/>
+          <div>Origin: Top Left</div>
+          <br/>
+
+          {(!store.state.initialized) ? <Paragraph marginTop={4}>enable calculator before editting options</Paragraph> : ""}
+          <Pane> <AdvancedOptions disabled={!store.state.initialized} setDefault={true} params={store.getState().defaultParameters}/></Pane>
         </div>
 
         <div>
           <Heading marginTop={8}>Create Toolpaths</Heading>
-          {(!state.initialized) ? <Paragraph marginTop={4}>select settings before creating toolpaths</Paragraph> : ""}
+          {(!store.state.initialized) ? <Paragraph marginTop={4}>enable calculator before creating toolpaths</Paragraph> : ""}
           <div className="toolpaths">
-            <Pane marginLeft={8} marginTop={4}><ProfileButton disabled={!state.initialized}/></Pane>
-            <Pane marginLeft={8} marginTop={4}><PocketButton disabled={!state.initialized}/></Pane>
-            <Pane marginLeft={8} marginTop={4}><DrillButton disabled={!state.initialized}/></Pane>
+            <Pane marginLeft={8} marginTop={4}><ProfileButton disabled={!store.state.initialized}/></Pane>
+            <Pane marginLeft={8} marginTop={4}><PocketButton disabled={!store.state.initialized}/></Pane>
+            <Pane marginLeft={8} marginTop={4}><DrillButton disabled={!store.state.initialized}/></Pane>
           </div>
         </div>
 

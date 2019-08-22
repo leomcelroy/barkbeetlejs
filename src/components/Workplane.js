@@ -12,7 +12,6 @@ class Workplane extends Component {
     };
 
   wheel(e) {
-    e.preventDefault();
     // let loc = utils.getSVGpoint(e, this.state.v0, this.state.v1, this.state.v2, this.state.v3 ,this.state.width, this.state.height);
 
     if (e.ctrlKey) {

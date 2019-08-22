@@ -59,6 +59,7 @@ const store = createStore({
   thickness: 34,
   units: "mm",
   zero: "bottomleft",
+  initialized: false,
   defaultParameters: defaultParameters, //need to generate these from material, thickness, units
 });
 

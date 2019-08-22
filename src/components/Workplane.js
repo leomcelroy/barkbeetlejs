@@ -3,8 +3,8 @@ import React, { Component } from 'react';
 class Workplane extends Component {
 
   state = {
-      width: 500,
-      height: 500,
+      width: "95%",
+      height: "95%",
       v0: 0,
       v1: 0,
       v2: 500,

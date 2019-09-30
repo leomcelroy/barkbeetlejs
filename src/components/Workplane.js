@@ -12,6 +12,7 @@ class Workplane extends Component {
     };
 
   wheel(e) {
+    e.preventDefault();
     // let loc = utils.getSVGpoint(e, this.state.v0, this.state.v1, this.state.v2, this.state.v3 ,this.state.width, this.state.height);
 
     if (e.ctrlKey) {
@@ -84,8 +85,8 @@ class Workplane extends Component {
         viewBox={`${this.state.v0} ${this.state.v1} ${this.state.v2} ${this.state.v3}`}
         xmlns={"http://www.w3.org/2000/svg"}
         onWheel={(e) => this.wheel(e)}
-        style={{border: "1px solid #cccccc"}}>
-
+        style={{border: "1px solid #cccccc"}}
+        id="tempSVGID">
           {this.props.groups}
       </svg>
     );

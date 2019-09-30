@@ -1,16 +1,14 @@
 **** TODO ****
--generate settings from material and thickness inputs
 -auto tabs
--place tabs
 -auto dogbone
 -reorder toolpaths
 -gcode file naming when exporting
 -move origin location
--box select
--double click to deselect
 -ramp plunge, and angle
+-render pockets as solid fill
 
 **** Would Be Good ****
+-place tabs
 -display tool in toolpath list
 -make toolpath list draggable
 -import (dxf, makerjs)
@@ -19,6 +17,7 @@
 -detecting interior contours
 
 **** Maybe ****
+-double click to deselect
 -export same tools into same files and steps
 -switch to new framework? library? (my lit system, svelte, solidjs)
 -default export all gcode files when none selected
@@ -43,6 +42,8 @@ SQUASHED - Editing general settings doesn't propagate to settings in toolpath ge
 SQUASHED - if there is no output outline from profile then gcode searching for first point causes crash
 
 **** DONE ****
+-box select
+-generate settings from material and thickness inputs
 -create spreadsheet of settings with jens
 -cut open paths by tracing them
 -generate gcode at export instead of when geometry is generated

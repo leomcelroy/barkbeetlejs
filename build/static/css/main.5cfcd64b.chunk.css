@@ -1,2 +1,0 @@
-body{overflow:hidden;position:fixed}svg g:hover{background-color:#ff0}.option:hover{color:red}.wrapper{display:grid;grid-template-columns:1fr 400px;grid-gap:10px;grid-auto-rows:100vh}.mainEvent{grid-column:1;grid-row:1;margin:0 auto}.sidebar{grid-column:2;grid-row:1}.toolpaths{display:flex;flex-direction:row}
-/*# sourceMappingURL=main.5cfcd64b.chunk.css.map */

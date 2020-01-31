@@ -102,7 +102,7 @@ export const clipOffsetContours = (contours, offset, joints = 1, tolerance = 0.0
         offsetted.forEach((points, j) => {
             if (points.length === 0) return
             let result = []
-            points.forEach((point: any) => {
+            points.forEach((point) => {
                 result.push([point.X / scale, point.Y / scale])
             })
 

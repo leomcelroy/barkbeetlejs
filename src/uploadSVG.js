@@ -20,6 +20,8 @@ const uploadSVG = (e) => {
     let hmm = document.getElementById('thisIsDumb');
     hmm.innerHTML = text;
 
+    console.log(hmm);
+
     let paths = flattenSVG(hmm);
 
     let contours = {};

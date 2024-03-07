@@ -1,0 +1,57 @@
+**** TODO ****
+
+** Level 0 **
+
+** Level 1 **
+- highlight hovered toolpath
+
+- climb and conventional milling
+- auto tabs
+- auto dogbone
+- working icon
+
+- stiffness parameter
+
+** Level 2 **
+- import (dxf, makerjs)
+- join close curves
+- suggest bit type
+
+** Level 3 **
+- ramp plunge, and angle
+
+** Level 5 **
+- automill
+- detecting interior contours
+  - auto climb and conventional milling
+- place tabs
+- display tool in toolpath list
+- make toolpath list draggable
+- add more info about default settings
+
+**** Done ****
+- group toolpaths created at one time
+- make toolpath list scrollable
+- move origin location
+  - adjust gcode to origin
+- scale origin with viewer
+- drop in upload
+- render drill
+- recenter
+- filenames are off
+- move expensive computations to web workers
+- table
+  - consistent sizing
+- reorder toolpaths
+
+**** Maybe ****
+- gcode file naming when exporting
+- render pockets as solid fill
+- update settings when bit sized changed, maybe make this optional auto- update feature
+- add known chain flattening and general model flattening to polylines with deviation tolerance (mjs)
+- separate select and view for toolpaths
+
+**** Bugs ****
+- if profile returns multiple contours need to raise bit when traveling between them
+- improve resolution of clipper offsets (like with kiwi example)
+- over 50% stepover bug with onion skin pockets, need to do dogbone geometry

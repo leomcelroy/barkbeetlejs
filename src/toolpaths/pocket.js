@@ -1,5 +1,5 @@
-import {clipOffsetContour} from '../unmakerjs/clipper.js'
-import {depthOfPasses} from '../parameters.js'
+import {clipperOffsetContour, clipperOffsetContourWorker} from './clipper_offset.js'
+import {depth_of_passes} from '../depth_of_passes.js'
 
 
 const len = (toolpath) => Object.keys(toolpath).length;
@@ -14,11 +14,11 @@ const isToolpath = (toolpath) => {
   }
 }
 
-const createToolpaths = (geo, params) => {
+const createToolpaths = async (geo, params) => {
   let contours = [];
   let count = 0;
 
-  let pass = clipOffsetContour(geo, -params.compensatedRadius); //returns array of contours
+  let pass = await clipperOffsetContourWorker(geo, -params.compensatedRadius); //returns array of contours
 
   if (isToolpath(pass) !== true) {
     return contours;
@@ -29,9 +29,12 @@ const createToolpaths = (geo, params) => {
     count++;
     let lastPass = contours[count - 1];
     // console.log("lastPass", lastPass)
-    pass = lastPass.map(contour => clipOffsetContour(contour, -params.compensatedRadius * params.stepoverPercentage/100)).flat();
-
+    pass = await Promise.all(lastPass.map(contour => clipperOffsetContourWorker(contour, -params.compensatedRadius * params.stepoverPercentage/100)));
+    pass = pass.flat();
+    // console.log("pass", pass)
   }
+
+  // console.log("contours", contours)
 
   return contours.flat();
 }
@@ -73,7 +76,7 @@ export const pocketGcode = (toolpaths, params) => {
 
   // let firstPoint = keyPoints[0][0][0];
 
-  let passDepths = depthOfPasses(params.cutDepth, params.passDepth);
+  let passDepths = depth_of_passes(params.cutDepth, params.passDepth);
 
   let paths2 = passDepths.map((p,i) => [
     ...paths.map(x => (x === "plunge") ? `G1 Z${passDepths[i]} F${params.plungeRate}` : x), //plunge rate
@@ -83,9 +86,9 @@ export const pocketGcode = (toolpaths, params) => {
 
   paths2 = paths2.flat();
 
-  let units;
-  if (params.units === "in") units = "G20";
-  if (params.units === "mm") units = "G21";
+  let units = "G21";
+  // if (params.units === "in") units = "G20";
+  // if (params.units === "mm") units = "G21";
 
   let preamble = [units, "G90"];
 
@@ -105,9 +108,10 @@ export const pocketGcode = (toolpaths, params) => {
 }
 
 export const pocket = (contour, params) => {
+  if (contour === []) return [];
 
   let toolpaths = createToolpaths(contour, params);
   //let gcode = pocketGcode(toolpaths, params)
 
-  return {drawing: toolpaths, geometry: toolpaths};
+  return toolpaths;
 };

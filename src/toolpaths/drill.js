@@ -1,4 +1,4 @@
-import {line} from '../unmakerjs/primitives.js';
+import {line} from '../line.js';
 
 const linesToPolylinePoints = (lines, lastIndex) => lines.map((line, i) => { //should import this instead
   if (i === lastIndex-1) return [{x:line.origin[0], y:line.origin[1]}, {x:line.end[0], y:line.end[1]}];
@@ -25,9 +25,9 @@ const getCenter = (contour) => {
 }
 
 export const drillGcode = (center, params) => {
-  let units;
-  if (params.units === "in") units = "G20";
-  if (params.units === "mm") units = "G21";
+  let units = "G21";
+  // if (params.units === "in") units = "G20";
+  // if (params.units === "mm") units = "G21";
 
   let preamble = [units, "G90"];
 
@@ -35,7 +35,7 @@ export const drillGcode = (center, params) => {
     ...preamble,
     "(end of preamble)",
     `G1 Z${params.jogHeight} F${params.jogRate}`,
-    `G0 X${center[0]} Y${center[1]}`,
+    `G0 X${center[0][0].origin[0]} Y${center[0][0].origin[1]}`,
     `G1 Z-${params.cutDepth} F${params.plungeRate}`, //plunge rate
     `G1 Z${params.jogHeight} F${params.jogRate}`,
   ]
@@ -46,14 +46,16 @@ export const drillGcode = (center, params) => {
 }
 
 export const drill = (contour, params) => {
+  if (contour === []) return [];
+  
   let center = getCenter(contour);
 
   // let gcode = drillGcode(center, params);
 
-  let drawing = [
-    [line([center[0] - params.compensatedRadius, center[1]], [center[0] + params.compensatedRadius, center[1]])],
-    [line([center[0], center[1] - params.compensatedRadius], [center[0], center[1] + params.compensatedRadius])]
-  ]
+  // let drawing = [
+  //   [line([center[0] - params.compensatedRadius, center[1]], [center[0] + params.compensatedRadius, center[1]])],
+  //   [line([center[0], center[1] - params.compensatedRadius], [center[0], center[1] + params.compensatedRadius])]
+  // ]
 
-  return {drawing, geometry: center};
+  return [[line(center, center)]];
 };

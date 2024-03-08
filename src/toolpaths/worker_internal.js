@@ -1,9 +1,9 @@
-import { ClipperLib } from "../../libs/ClipperLib.js";
-import { connect_points } from "../connect_points.js";
-
-
 onmessage = (e) => {
   let { contour, offset, joints, tolerance, href } = e.data;
+
+  if (href.includes("leomcelroy.com")) href = "https://leomcelroy.com/barkbeetlejs/";
+
+  self.importScripts(`${href}workerLibs/ClipperLibWorker.js`);
 
   const EndTypes = {
     etOpenSquare: 0,

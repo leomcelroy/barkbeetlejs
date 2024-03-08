@@ -147,12 +147,20 @@ export function clipperOffsetContourWorker(
   joints = 1,
   tolerance = 0.01
 ) {
-  return new Promise(resolve => {
+  return new Promise(async (resolve) => {
+    
     const href = window.location.host.includes("leomcelroy") 
-      ? "https://raw.githubusercontent.com/leomcelroy/barkbeetlejs/master/src/toolpaths/worker_internal.js"
-      : "/src/toolpaths/worker_internal.js";
+      ? "https://leomcelroy.com/barkbeetlejs/src/toolpaths/worker_internal.js"
+      : "./src/toolpaths/worker_internal.js";
 
-    var worker = new Worker(href, { type: "module" });
+    const scriptContent = await fetch(href)
+      .then(response => response.text())
+      .catch(error => console.error('Error fetching worker script:', error));
+
+    // const blob = new Blob(["(" + workerInternal.toString() + "())"]);
+    const blob = new Blob([scriptContent]);
+    const url = window.URL.createObjectURL(blob);
+    const worker = new Worker(url);
 
     worker.postMessage({
       contour,

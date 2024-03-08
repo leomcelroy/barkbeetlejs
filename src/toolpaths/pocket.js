@@ -1,5 +1,6 @@
 import {clipperOffsetContour, clipperOffsetContourWorker} from './clipper_offset.js'
 import {depth_of_passes} from '../depth_of_passes.js'
+import { difference } from "../geogram/index.js";
 
 
 const len = (toolpath) => Object.keys(toolpath).length;
@@ -34,7 +35,11 @@ const createToolpaths = async (geo, params) => {
     // console.log("pass", pass)
   }
 
-  // console.log("contours", contours)
+  // now remove all inside after offsetting once
+  console.log({ 
+    contours,
+    geo 
+  });
 
   return contours.flat();
 }

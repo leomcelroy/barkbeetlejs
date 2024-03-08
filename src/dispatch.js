@@ -8,6 +8,9 @@ import { profile, profileGcode } from "./toolpaths/profile.js";
 import { drill, drillGcode } from "./toolpaths/drill.js";
 import { gcodeTransform } from "./gcodeTransform.js";
 import { originPoint } from "./originPoint.js";
+import { convertToPls, convertPlsToContours } from "./convertToPls.js";
+import { isPolylineInside } from "./isPolylineInside.js";
+import { expand, difference } from "./geogram/index.js";
 
 let state = {};
 // let cache = new makeCache();
@@ -441,11 +444,36 @@ export const dispatch = (action, args = {}, rerender = true) => {
 
             pocket(state.contours[id], args.params)
               .then(p => {
+                const og = convertToPls([state.contours[id]]);
+
+                const insidePls = [];
+
+                for (const id in state.contours) {
+                  const c = [ state.contours[id] ];
+                  const pls = convertToPls(c);
+
+                  const isInside = isPolylineInside(og, pls);
+
+                  if (isInside) {
+                    insidePls.push(pls[0]);
+                  }
+
+                }
+
+                const expandedInside = insidePls.map(i => expand([ i ], args.params.compensatedRadius)).flat();
+
+                const subtractOffsetInside = difference(
+                  convertToPls(p),
+                  expandedInside
+                );
+
+                subtractOffsetInside.push(...expandedInside);
+
                 state.toolpaths.push({
                   type: "pocket",
                   // name: args.params.name,
                   sourceGeometryID: id,
-                  geometry: p,
+                  geometry: convertPlsToContours(subtractOffsetInside),
                   selected: true,
                   parameters: { ...state.defaultParameters, ...args.params },
                   id: i === 0 ? groupLeaderID : utils.makeID(),
@@ -469,9 +497,35 @@ export const dispatch = (action, args = {}, rerender = true) => {
             if (path.group === leader) {
               pocket(state.contours[path.sourceGeometryID], args.params)
               .then(p => {
+                const ogId = path.sourceGeometryID;
+                const og = convertToPls([ state.contours[ogId] ]);
+
+                const insidePls = [];
+
+                for (const id in state.contours) {
+                  const c = [ state.contours[id] ];
+                  const pls = convertToPls(c);
+
+                  const isInside = isPolylineInside(og, pls);
+
+                  if (isInside) {
+                    insidePls.push(pls[0]);
+                  }
+
+                }
+
+                const expandedInside = insidePls.map(i => expand([ i ], args.params.compensatedRadius)).flat();
+
+                const subtractOffsetInside = difference(
+                  convertToPls(p),
+                  expandedInside
+                );
+
+                subtractOffsetInside.push(...expandedInside);
+
                 state.toolpaths[i] = {
                   ...path,
-                  geometry: p,
+                  geometry: convertPlsToContours(subtractOffsetInside),
                   parameters: { ...path.parameters, ...args.params }
                 };
               })

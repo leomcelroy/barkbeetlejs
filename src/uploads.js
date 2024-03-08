@@ -2,7 +2,7 @@ import {flattenSVG} from '../libs/flattenSVG.js';
 
 import * as utils from './utils.js';
 import {connect_points} from './connect_points.js';
-
+import { width, scale, originate } from "./geogram/index.js";
 
 const uploadSVG = (file) => {
 
@@ -16,10 +16,19 @@ const uploadSVG = (file) => {
     
     let paths = flattenSVG(hmm);
 
+    const pls = paths.map(x => x.points);
+
+    const defaultWidth = width(pls);
+
+    const targetWidth = prompt("Please input desired width in millimeters.\nDefault value is default width.", defaultWidth);
+
+    scale(pls, targetWidth/defaultWidth);
+    originate(pls);
+
     let contours = {};
 
-    Object.values(paths).forEach(path => {
-      let lines = connect_points(path.points);
+    pls.forEach(pl => {
+      let lines = connect_points(pl);
       contours[utils.makeID()] = lines;
     })
 

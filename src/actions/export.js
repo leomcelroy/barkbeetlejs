@@ -13,7 +13,7 @@ const download_gcode = ({ toolpaths, filename }) => {
       let geometry = path.geometry;
 
       geometry = transformations.reflect(geometry, false, true);
-      geometry = transformations.scale(geometry, 0.5, 0.5);
+      // geometry = transformations.scale(geometry, 0.5, 0.5);
 
       let gcode;
       if (path.type === "profile")

@@ -148,7 +148,11 @@ export function clipperOffsetContourWorker(
   tolerance = 0.01
 ) {
   return new Promise(resolve => {
-    var worker = new Worker("/src/toolpaths/worker_internal.js", { type: "module" });
+    const href = window.location.host.includes("leomcelroy") 
+      ? "https://www.leomcelroy.com/barkbeetlejs/src/toolpaths/worker_internal.js"
+      : "/src/toolpaths/worker_internal.js";
+
+    var worker = new Worker(href, { type: "module" });
 
     worker.postMessage({
       contour,

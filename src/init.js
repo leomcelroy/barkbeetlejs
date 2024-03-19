@@ -5,21 +5,24 @@ export const init = (options = {}) => {
     contours: {},
     toolpaths: [],
     selected: [],
+    selectedToolpaths: new Set(),
     material: "wood",
     thickness: 0,
     flutes: 0,
     rpm: 0,
     units: "mm",
-    origin: "top_left",
+    origin: "bottom_left",
     initialized: false,
     defaultParameters: {
       name: "anon", //used
       dogbone: false, //not used
       offsetDirection: "outside", //used
-      tabs: false, //not used
-      tabThickness: 0, //not used
+      tabs: true, //not used
+      tabThickness: 5, //not used
+      tabWidth: 5, //not used
+      tabLocations: [], // @type tab = tValue 0 to 1
       jogHeight: 5, //used
-      stepoverPercentage: 60, //used
+      stepoverPercentage: 45, //used
       jogRate: 6000, //used
       // units: "mm", //used
       tolerance: 0,

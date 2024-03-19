@@ -10,7 +10,10 @@ import { gcodeTransform } from "./gcodeTransform.js";
 import { originPoint } from "./originPoint.js";
 import { convertToPls, convertPlsToContours } from "./convertToPls.js";
 import { isPolylineInside } from "./isPolylineInside.js";
-import { expand, difference } from "./geogram/index.js";
+import { expand, difference, offset2, offset, union } from "./geogram/index.js";
+// import { clipperOffsetContour } from "./clipper_offset.js";
+
+const copy = obj => JSON.parse(JSON.stringify(obj));
 
 let state = {};
 // let cache = new makeCache();
@@ -105,7 +108,9 @@ export const dispatch = (action, args = {}, rerender = true) => {
       recalculate(state, args);
       break;
     case "SAVE":
-      utils.download(`${state.filename}.bbjs`, JSON.stringify(state));
+      const filename = prompt("Please input a file name.");
+      if (filename === null || filename === "") return;
+      utils.download(`${filename}.bbjs`, JSON.stringify(state));
       break;
     case "UPLOAD_BBJS":
       let contours = {};
@@ -231,8 +236,8 @@ export const dispatch = (action, args = {}, rerender = true) => {
           geometry = gcodeTransform.offset(geometry, -offset.x, -offset.y);
 
           geometry = gcodeTransform.reflect(geometry, false, true);
-          let scaleFactor = 1 / 3.77953;
-          geometry = gcodeTransform.scale(geometry, scaleFactor, scaleFactor);
+          let scaleFactor = 1; // 1 / 3.77953;
+          // geometry = gcodeTransform.scale(geometry, scaleFactor, scaleFactor);
 
           let gcode;
           if (path.type === "profile")
@@ -378,34 +383,94 @@ export const dispatch = (action, args = {}, rerender = true) => {
           state.defaultParameters.toolDiameter;
       } else if (state.popUpType.type === "profile") {
         if (state.popUpType.createOrEdit === "create") {
-          // create profile
-          let groupLeaderID;
-          state.selected.forEach((id, i) => {
-            if (i === 0) groupLeaderID = utils.makeID();
 
-            profile(state.contours[id], args.params)
-              .then(p => {
-                state.toolpaths.push({
-                  type: "profile",
-                  // name: args.params.name,
-                  sourceGeometryID: id,
-                  geometry: p,
-                  selected: true,
-                  parameters: { ...state.defaultParameters, ...args.params },
-                  id: i === 0 ? groupLeaderID : utils.makeID(),
-                  group: groupLeaderID
-                });
-              })
-              .then(() => dispatch("UPDATE"));
-            // state.toolpaths[utils.makeID()] = {
-            //   type: "profile",
-            //   // name: args.params.name,
-            //   sourceGeometryID: id,
-            //   geometry: profile(state.contours[id], args.params),
-            //   selected: true,
-            //   parameters: {...state.defaultParameters, ...args.params},
-            // };
+          const geometryToOffset = convertToPls(state.selected.map(id => state.contours[id]));
+          const groupLeaderID = utils.makeID();
+
+          const insidePls = [];
+
+          for (const insideId of state.selected) {
+
+            const geoToCheckAgainst = convertToPls(
+              state.selected
+                .filter(id => id !== insideId)
+                .map(id => state.contours[id])
+            );
+
+            
+            const c = [ state.contours[insideId] ];
+            const pls = convertToPls(c);
+
+            const isInside = isPolylineInside(pls, geoToCheckAgainst);
+
+            if (isInside) {
+              insidePls.push(insideId);
+            }
+
+          }
+
+          const offsetDir = {
+            "outside": (id) => {
+              return insidePls.includes(id) ? -1 : 1;
+            },
+            "inside": (id) => {
+              return insidePls.includes(id) ? 1 : -1;
+            },
+            "none": () => 0
+          }[args.params.offsetDirection];
+
+          const offsetGeo = [];
+          geometryToOffset.forEach((pl, i) => {
+            const id = state.selected[i];
+            offsetGeo.push(...offset(
+              [ pl ],
+              offsetDir(id)*args.params.compensatedRadius, // sign of this is inside or outside
+              { 
+                arcTolerance: 0.01,
+                endType: "etClosedPolygon" 
+              }
+            ));
           });
+
+          state.toolpaths.push({
+            type: "profile",
+            // name: args.params.name,
+            sourceGeometryID: copy(state.selected)[0], // id,
+            geometry: convertPlsToContours(offsetGeo),
+            selected: true,
+            parameters: { ...state.defaultParameters, ...args.params },
+          });
+
+          dispatch("UPDATE");
+
+          // create profile
+          // let groupLeaderID;
+          // state.selected.forEach((id, i) => {
+          //   if (i === 0) groupLeaderID = utils.makeID();
+
+          //   profile(state.contours[id], args.params)
+          //     .then(p => {
+          //       state.toolpaths.push({
+          //         type: "profile",
+          //         // name: args.params.name,
+          //         sourceGeometryID: id,
+          //         geometry: p,
+          //         selected: true,
+          //         parameters: { ...state.defaultParameters, ...args.params },
+          //         id: i === 0 ? groupLeaderID : utils.makeID(),
+          //         group: groupLeaderID
+          //       });
+          //     })
+          //     .then(() => dispatch("UPDATE"));
+          //   // state.toolpaths[utils.makeID()] = {
+          //   //   type: "profile",
+          //   //   // name: args.params.name,
+          //   //   sourceGeometryID: id,
+          //   //   geometry: profile(state.contours[id], args.params),
+          //   //   selected: true,
+          //   //   parameters: {...state.defaultParameters, ...args.params},
+          //   // };
+          // });
         } else if (state.popUpType.createOrEdit === "edit") {
           // edit target profile toolpath
           let og = state.toolpaths[state.popUpType.edit];
@@ -438,50 +503,98 @@ export const dispatch = (action, args = {}, rerender = true) => {
         if (state.popUpType.createOrEdit === "create") {
           // create pocket
 
-          let groupLeaderID;
-          state.selected.forEach((id, i) => {
-            if (i === 0) groupLeaderID = utils.makeID();
+          const geometryToOffset = convertToPls(state.selected.map(id => state.contours[id]));
+          const groupLeaderID = utils.makeID();
 
-            pocket(state.contours[id], args.params)
-              .then(p => {
-                const og = convertToPls([state.contours[id]]);
+          const firstPass = copy(offset(
+            geometryToOffset,
+            -args.params.compensatedRadius, 
+            { 
+              arcTolerance: 0.01,
+              endType: "etClosedPolygon" 
+            }
+          ));
 
-                const insidePls = [];
 
-                for (const id in state.contours) {
-                  const c = [ state.contours[id] ];
-                  const pls = convertToPls(c);
+          const offsetGeo = [...firstPass];
+          let currentPass = firstPass;
+          while (currentPass.length > 0) {
+            currentPass = copy(offset(
+              geometryToOffset,
+              -args.params.compensatedRadius * args.params.stepoverPercentage/100, 
+              { 
+                arcTolerance: 0.01,
+                endType: "etClosedPolygon" 
+              }
+            ));
+            offsetGeo.push(...currentPass);
+          }
 
-                  const isInside = isPolylineInside(og, pls);
+          console.log({
+            geometryToOffset,
+            offsetGeo
+          })
 
-                  if (isInside) {
-                    insidePls.push(pls[0]);
-                  }
-
-                }
-
-                const expandedInside = insidePls.map(i => expand([ i ], args.params.compensatedRadius)).flat();
-
-                const subtractOffsetInside = difference(
-                  convertToPls(p),
-                  expandedInside
-                );
-
-                subtractOffsetInside.push(...expandedInside);
-
-                state.toolpaths.push({
-                  type: "pocket",
-                  // name: args.params.name,
-                  sourceGeometryID: id,
-                  geometry: convertPlsToContours(subtractOffsetInside),
-                  selected: true,
-                  parameters: { ...state.defaultParameters, ...args.params },
-                  id: i === 0 ? groupLeaderID : utils.makeID(),
-                  group: groupLeaderID
-                });
-              })
-              .then(() => dispatch("UPDATE"));
+          state.toolpaths.push({
+            type: "pocket",
+            // name: args.params.name,
+            sourceGeometryID: copy(state.selected)[0], // id,
+            geometry: convertPlsToContours(offsetGeo),
+            selected: true,
+            parameters: { ...state.defaultParameters, ...args.params },
+            id: groupLeaderID,
+            group: groupLeaderID
           });
+
+          dispatch("UPDATE");
+
+
+          // let groupLeaderID;
+          // state.selected.forEach((id, i) => {
+          //   if (i === 0) groupLeaderID = utils.makeID();
+
+          //   pocket(state.contours[id], args.params)
+          //     .then(p => {
+          //       const og = convertToPls([state.contours[id]]);
+
+          //       const insidePls = [];
+
+          //       for (const insideId of state.selected) {
+          //         if (insideId === id) continue;
+                  
+          //         const c = [ state.contours[id] ];
+          //         const pls = convertToPls(c);
+
+          //         const isInside = isPolylineInside(og, pls);
+
+          //         if (isInside) {
+          //           insidePls.push(pls[0]);
+          //         }
+
+          //       }
+
+          //       const expandedInside = insidePls.map(i => offset2([ i ], args.params.compensatedRadius, { endType: "etClosedPolygon" })).flat();
+                
+          //       const subtractOffsetInside = difference(
+          //         convertToPls(p),
+          //         expandedInside
+          //       );
+
+          //       subtractOffsetInside.push(...expandedInside);
+
+          //       state.toolpaths.push({
+          //         type: "pocket",
+          //         // name: args.params.name,
+          //         sourceGeometryID: id,
+          //         geometry: convertPlsToContours(subtractOffsetInside),
+          //         selected: true,
+          //         parameters: { ...state.defaultParameters, ...args.params },
+          //         id: i === 0 ? groupLeaderID : utils.makeID(),
+          //         group: groupLeaderID
+          //       });
+          //     })
+          //     .then(() => dispatch("UPDATE"));
+          // });
         } else if (state.popUpType.createOrEdit === "edit") {
           // edit target pocket toolpath
           let og = state.toolpaths[state.popUpType.edit];

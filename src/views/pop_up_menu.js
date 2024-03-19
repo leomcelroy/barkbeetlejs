@@ -129,21 +129,19 @@ export const pop_up_menu = state => {
           <select id="offsetDirection">
             <option
               value="outside"
-              ?selected="${params.offsetDirection ===
-                "outside"}"
-              >outside</option
-            >
+              ?selected="${params.offsetDirection === "outside"}">
+              outside
+            </option>
             <option
               value="inside"
-              ?selected="${params.offsetDirection ===
-                "inside"}"
-              >inside</option
-            >
+              ?selected="${params.offsetDirection === "inside"}">
+              inside
+            </option>
             <option
               value="none"
-              ?selected="${params.offsetDirection === "none"}"
-              >none</option
-            >
+              ?selected="${params.offsetDirection === "none"}">
+              none
+            </option>
           </select>
           <br /><br />
         </div>
@@ -154,7 +152,7 @@ export const pop_up_menu = state => {
                 : "display:none;"
             }"
           >
-            Auto Tabs (for profiles) (WIP!):
+            Tabs (for profiles):
             <input
               type="checkbox"
               id="autoTabs"
@@ -172,7 +170,17 @@ export const pop_up_menu = state => {
               placeholder="${params.tabThickness}"
             />
             <br /><br />
-            </div>
+            Tab Width:
+            <input
+              type="number"
+              min="0"
+              @keypress=${keyFilter}
+              id="tabWidth"
+              value="${params.tabWidth}"
+              placeholder="${params.tabWidth}"
+            />
+            <br /><br />
+          </div>
             <div
               style="${
                 state.popUpType.default || state.popUpType.type === "pocket"
@@ -219,6 +227,7 @@ export const pop_up_menu = state => {
                     offsetDirection, //used
                     tabs, //not used
                     tabThickness: extract("tabThickness"), //not used
+                    tabWidth: extract("tabWidth"),
                     jogHeight: extract("jogHeight"), //used
                     stepoverPercentage: extract("stepoverPercentage"), //used
                     jogRate: extract("jogRate"), //used

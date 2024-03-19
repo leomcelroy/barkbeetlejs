@@ -6,6 +6,7 @@ import {extrema} from "../extrema.js";
 
 export const viewer_menu = state => {
   return html`
+    <!--
     <span>
       Filename: 
         <input 
@@ -16,6 +17,7 @@ export const viewer_menu = state => {
           }}>
         </input>
     </span>
+    -->
 
     <button 
       @mousedown=${() => {

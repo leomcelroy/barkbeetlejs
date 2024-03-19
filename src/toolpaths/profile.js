@@ -1,20 +1,23 @@
-import {clipperOffsetContour, clipperOffsetContourWorker} from './clipper_offset.js'
-import {depth_of_passes} from '../depth_of_passes.js'
-
-
-const offsetFunc = (offset) => {
-  if (offset === "outside") {
-    return false;
-  } else if (offset === "inside") {
-    return true;
-  } else if (offset === "none") {
-    return "none";
-  }
-}
+import { clipperOffsetContour, clipperOffsetContourWorker } from './clipper_offset.js'
+import { depth_of_passes } from '../depth_of_passes.js'
+import { findLineCircleInts } from "./findLineCircleInts.js";
+import { isPointInsideCircle } from "./isPointInsideCircle.js";
+import { orderPointsAlongLine } from "./orderPointsAlongLine.js";
+import { toolkit as tk } from "../drawingToolkit/toolkit.js";
 
 const createToolpaths = async (contour, params) => {
   let outline;
-  let offset = offsetFunc(params.offsetDirection);
+
+  let offset = {
+    "outside": () => false,
+    "inside": () => true,
+    "none": () => "none",
+    "auto": () => {
+      //
+      return false;
+    }
+  }[params.offsetDirection]();
+
   if (offset === "none") {
     outline = [contour];
   } else {
@@ -48,20 +51,91 @@ export const profileGcode = (toolpaths, params) => {
     keyPoints.push(first);
   }
 
-  let gcodePoints = keyPoints.map(p => `G1 X${p[0]} Y${p[1]} F${params.feedRate}`)
+
+  // let gcodePoints = keyPoints.map(p => `G1 X${p[0]} Y${p[1]} F${params.feedRate}`)
   //let gcode = JSON.parse(JSON.stringify(gcodePoints));
 
   let firstPoint = keyPoints[0]; //TODO: BUG what if there are no key points
 
   let passDepths = depth_of_passes(params.cutDepth, params.passDepth);
 
-  let paths = passDepths.map((p,i) => [
-    `G1 Z${passDepths[i]} F${params.plungeRate}`, //plunge rate
-    ...gcodePoints,
-    // `G1 X${firstPoint[0]} Y${firstPoint[1]} F${params.feedRate}`
-  ])
+  let paths = [];
 
-  paths = paths.flat(1);
+  const tabPoints = [
+    tk.getPoint([keyPoints], 0),
+    tk.getPoint([keyPoints], .33),
+    tk.getPoint([keyPoints], .66),
+  ];
+
+  console.log({ params, passDepths, keyPoints, tabPoints });
+
+  passDepths.forEach((depth, passIndex) => {
+
+    let lastPoint = [...keyPoints[0]];
+
+    keyPoints.forEach((pt, i) => {
+
+      const [x, y] = pt;
+
+      const TAB_RADIUS = params.tabWidth/2 + params.toolDiameter/2;
+      const TAB_THICKNESS = -params.cutDepth + params.tabThickness;
+
+      const tabIntersections = [];
+      
+      let lastPointInside = false;
+      let nextPointInside = false;
+
+      tabPoints.forEach(tab => {
+        if (params.tabs === false) return; 
+
+        const intersections = findLineCircleInts(
+          [ lastPoint, pt ],
+          tab,
+          TAB_RADIUS
+        );
+
+        tabIntersections.push(...intersections);
+
+        lastPointInside ||= isPointInsideCircle(lastPoint, tab, TAB_RADIUS);
+        nextPointInside ||= isPointInsideCircle(pt, tab, TAB_RADIUS);
+      });
+
+
+      orderPointsAlongLine(tabIntersections, lastPoint, pt);
+
+      tabIntersections.forEach((intersection, i) => {
+
+        const [x0, y0] = intersection;
+
+        const leave = ((lastPointInside ? 1 : 0) + (i+1)) % 2 === 0;
+        const enter = ((lastPointInside ? 1 : 0) + (i+1)) % 2 === 1;
+
+        if (enter) {
+          paths.push(`G1 X${x0} Y${y0} Z${depth}`);
+          paths.push(`F${params.plungeRate}`);
+          paths.push(`G1 X${x0} Y${y0} Z${Math.max(TAB_THICKNESS, depth)}`);
+        }
+
+        if (leave) {
+          paths.push(`G1 X${x0} Y${y0} Z${Math.max(TAB_THICKNESS, depth)}`);
+          paths.push(`F${params.plungeRate}`);
+          paths.push(`G1 X${x0} Y${y0} Z${depth}`);
+        }
+
+      })
+
+      if (passIndex === 0) {
+        paths.push(`F${params.plungeRate}`);
+        paths.push(`G1 Z${nextPointInside ? Math.max(TAB_THICKNESS, depth) : depth}`);
+      }
+
+      paths.push(`F${params.feedRate}`);
+      paths.push(`G1 X${x} Y${y} Z${nextPointInside ? Math.max(TAB_THICKNESS, depth) : depth}`);
+
+      lastPoint = pt;
+
+    });
+  });
 
   let units = "G21";
   // if (params.units === "in") units = "G20";

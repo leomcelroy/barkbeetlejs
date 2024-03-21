@@ -3,7 +3,7 @@ import { depth_of_passes } from '../depth_of_passes.js'
 import { findLineCircleInts } from "./findLineCircleInts.js";
 import { isPointInsideCircle } from "./isPointInsideCircle.js";
 import { orderPointsAlongLine } from "./orderPointsAlongLine.js";
-import { toolkit as tk } from "../drawingToolkit/toolkit.js";
+import tk from "../drawingToolkit/toolkit.js";
 
 const createToolpaths = async (contour, params) => {
   let outline;
@@ -34,20 +34,18 @@ const createToolpaths = async (contour, params) => {
 }
 
 export const profileGcode = (toolpaths, params) => {
-  toolpaths = toolpaths.flat(); //TODO: BUG this is a hack to deal with not raising the bit yet
 
-  // let keyPoints = toolpaths.map(line => [line.origin[0], line.origin[1]]); 
-  let keyPoints = toolpaths.map(line => line.origin);
-  //TODO: if toolpath doesn't close I need to take the end point too
+  let keyPoints = toolpaths;
+
   let l = toolpaths.length;
-  let xMatch = toolpaths[0].origin[0] === toolpaths[l - 1].end[0];
-  let yMatch = toolpaths[0].origin[1] === toolpaths[l - 1].end[1];
+  let xMatch = toolpaths[0][0] === toolpaths.at(-1)[0];
+  let yMatch = toolpaths[0][1] === toolpaths.at(-1)[1];
   let closed = xMatch && yMatch;
   if (!closed) {
-    let last = toolpaths[l - 1].end;
+    let last = toolpaths.at(-1);
     keyPoints.push(last);
   } else {
-    let first = toolpaths[0].origin;
+    let first = toolpaths[0];
     keyPoints.push(first);
   }
 

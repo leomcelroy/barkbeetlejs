@@ -1,14 +1,21 @@
-import {extrema} from "./extrema.js";
+import { extrema } from "./extrema.js";
+import tk from "./drawingToolkit/toolkit.js";
 
-export const originPoint = ({contours, origin}) => {
-  let { xMin, xMax, yMin, yMax } = extrema(contours);
+export const originPoint = ({ contours, origin }) => {
+  const pls = Object.values(contours).flat();
+
+  let { xMin, xMax, yMin, yMax } = tk.bounds(pls);
+
+  if (xMin === Infinity || yMin === Infinity || xMax === -Infinity || yMax === -Infinity) return {
+    x: 0,
+    y: 0
+  }
 
   let originX, originY;
   switch(origin) {
     case "center":
       originX = (xMin + xMax)/2;
       originY = (yMin + yMax)/2;
-      console.log("center", originX, originY);
       break;
     case "top_left":
       originX = xMin;

@@ -1,4 +1,4 @@
-import { toolkit as tk } from "./drawingToolkit/toolkit.js";
+import tk from "./drawingToolkit/toolkit.js";
 
 export function isPolylineInside(polylines1, polylines2) {
     

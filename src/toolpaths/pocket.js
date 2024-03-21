@@ -45,14 +45,8 @@ const createToolpaths = async (geo, params) => {
 }
 
 export const pocketGcode = (toolpaths, params) => {
-  let keyPoints = toolpaths.map(outline => outline.map(line => [line.origin[0], line.origin[1]]));
 
-  // toolpaths = Object.values(toolpaths).flat(2);
-  // console.log("toolpaths", toolpaths);
-
-  // console.log("keyPoints", keyPoints);
-
-  let gcodePoints = keyPoints.map(points => {
+  let gcodePoints = toolpaths.map(points => {
     let raise = points.length > 1;
     let firstPoint = points[0];
 

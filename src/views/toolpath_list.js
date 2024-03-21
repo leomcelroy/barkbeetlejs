@@ -1,8 +1,7 @@
 import { html } from "../../libs/lit-html.bundle.js";
 
 export const toolpath_list = state => {
-  let rows = state.toolpaths.map((toolpath, i) => {
-    let k = toolpath.id;
+  let rows = Object.entries(state.toolpaths).map(([k, toolpath], i) => {
 
     let c = "rTableRow";
     if (state.toolpath_drag.target === k) {
@@ -41,7 +40,7 @@ export const toolpath_list = state => {
         <div class="rTableCell">
           <button
             @click=${() =>
-              dispatch(`EDIT_${toolpath.type.toUpperCase()}`, { id: i })}
+              dispatch(`EDIT_${toolpath.type.toUpperCase()}`, { id: k })}
           >
             edit
           </button>
@@ -49,9 +48,9 @@ export const toolpath_list = state => {
         <div class="rTableCell">
           <input
             id="checkbox:${k}"
-            @click=${() => dispatch("SELECT_TOOLPATH", { id: i })}
+            @click=${() => dispatch("SELECT_TOOLPATH", { id: k })}
             type="checkbox"
-            ?checked="${toolpath.selected}"
+            .checked="${state.selectedToolpaths.has(k)}"
           />
         </div>
       </div>

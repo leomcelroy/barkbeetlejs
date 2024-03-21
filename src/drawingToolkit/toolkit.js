@@ -21,7 +21,7 @@ import { catmullRom } from "./catmullRom.js";
 import { nurbs } from "./nurbs.js";
 import { bezierEasing } from "./bezierEasing.js";
 
-export const toolkit = {
+export default {
   // displace, // NOT INCLUDED
   union: (polylines0, polylines1, ops = {}) => boolean(polylines0, polylines1, "union", ops),
   intersection: (polylines0, polylines1, ops = {}) => boolean(polylines0, polylines1, "intersection", ops),

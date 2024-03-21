@@ -28,12 +28,11 @@ const uploadSVG = (file) => {
     let contours = {};
 
     pls.forEach(pl => {
-      let lines = connect_points(pl);
-      contours[utils.makeID()] = lines;
+      contours[utils.makeID()] = [ pl ];
     })
 
 
-    dispatch("UPLOAD_SVG", {contours})
+    dispatch("UPLOAD_SVG", { contours })
 
   };
 

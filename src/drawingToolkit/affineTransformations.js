@@ -2,21 +2,42 @@ import { iteratePolylines } from "./iteratePolylines.js";
 import { bounds } from "./bounds.js";
 
 export const translate = (polylines, to, origin = [0, 0]) => {
-  iteratePolylines(polylines, pt => translatePt(pt, to, origin));
+  polylines.forEach(pl => {
+    pl.forEach(pt => {
+      const [newX, newY] = translatePt(pt, to, origin);
+      pt[0] = newX;
+      pt[1] = newY;
+    });
+  });
+
   return polylines;
 }
 
 export const rotate = (polylines, angle, origin) => {
   if (!origin) origin = bounds(polylines).cc
 
-  iteratePolylines(polylines, pt => rotatePt(pt, angle, origin))
+  polylines.forEach(pl => {
+    pl.forEach(pt => {
+      const [newX, newY] = rotatePt(pt, angle, origin);
+      pt[0] = newX;
+      pt[1] = newY;
+    });
+  });
+
   return polylines
 }
 
 export const scale = (polylines, factor, origin) => {
   if (!origin) origin = bounds(polylines).cc
 
-  iteratePolylines(polylines, pt => scalePt(pt, factor, origin))
+  polylines.forEach(pl => {
+    pl.forEach(pt => {
+      const [newX, newY] = scalePt(pt, factor, origin)
+      pt[0] = newX;
+      pt[1] = newY;
+    });
+  });
+
   return polylines
 }
 

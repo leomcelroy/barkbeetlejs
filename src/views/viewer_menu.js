@@ -1,6 +1,6 @@
 import { html } from "../../libs/lit-html.bundle.js";
 import { upload } from "../uploads.js";
-import {extrema} from "../extrema.js";
+import tk from "../drawingToolkit/toolkit.js";
 
 // outline
 
@@ -52,7 +52,9 @@ export const viewer_menu = state => {
         var svg = document.getElementById("inner_svg_viewer");
         let viewer = document.getElementById("svg_viewer");
 
-        let { xMin, xMax, yMin, yMax } = extrema(state.contours);
+        const pls = Object.values(state.contours).flat();
+
+        let { xMin, xMax, yMin, yMax } = tk.bounds(pls);
 
         let margin = 100;
 

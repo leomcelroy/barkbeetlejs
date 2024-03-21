@@ -1,6 +1,5 @@
 import { svg } from "../../libs/lit-html.bundle.js";
 import { upload } from "../uploads.js";
-import {extrema} from "../extrema.js";
 import {originPoint} from "../originPoint.js";
 
 const getSVGpoint = e => {
@@ -11,20 +10,6 @@ const getSVGpoint = e => {
 
   return pt.matrixTransform(el.getScreenCTM().inverse());
 };
-
-const makePath = lines => {
-  let path = [];
-
-  lines.forEach((line, i) => {
-    path.push({ x: line.origin[0], y: line.origin[1] });
-    if (i === lines.length - 1) path.push({ x: line.end[0], y: line.end[1] });
-  });
-
-  return path;
-};
-
-const makePolyline = path =>
-  path.reduce((acc, point) => acc + ` ${point.x},${point.y}`, " ");
 
 export const svg_viewer = state => {
   let inner_svg_viewer = document.getElementById("inner_svg_viewer");
@@ -55,49 +40,58 @@ export const svg_viewer = state => {
 
   Object.entries(state.contours).forEach(([k, v]) => {
     // console.log(k, v);
-    let path = makePath(v);
-    let points = makePolyline(path);
-
+    
     let classes = ["polyline"];
     if (state.selected.includes(k)) classes.push("selected");
 
-    let polyline = svg`<polyline class="${classes.join(
-      " "
-    )}" id="${k}:polyline" points="${points}" vector-effect="non-scaling-stroke" stroke="black" fill="none">`;
+    let d = "";
+    v[0].forEach((pt, i) => {
+      const [ x, y ] = pt;
+      if (i === 0) d += `M ${x},${y} `;
+      else d += `L ${x},${y} `
+    });
+
+    let polyline = svg`<path d=${d} class="${classes.join(" ")}" id="${k}:polyline" vector-effect="non-scaling-stroke" stroke="black" fill="none">`;
 
     rens.push(polyline);
   });
 
-  state.toolpaths.forEach(toolpath => {
-    let k = toolpath.id;
-    let v = toolpath;
+  Object.entries(state.toolpaths).forEach(([ k, toolpath ]) => {
+    
+    if (!state.selectedToolpaths.has(k)) return;
 
-    if (!v.selected) return;
-    if (v.type !== "drill") {
-      v.geometry.forEach(geo => {
-        let path = makePath(geo);
-        let points = makePolyline(path);
+    if (toolpath.type !== "drill") {
+      toolpath.geometry.forEach(pl => {
 
-        let polyline = svg`<polyline id="${k}:polyline:toolpath" points="${points}" vector-effect="non-scaling-stroke" stroke="red" fill="none"/>`;
+        let d = "";
+        pl.forEach((pt, i) => {
+          const [ x, y ] = pt;
+          if (i === 0) d += `M ${x},${y} `;
+          else d += `L ${x},${y} `
+        });
+
+        let polyline = svg`<path d=${d} id="${k}:polyline:toolpath" vector-effect="non-scaling-stroke" stroke="red" fill="none"/>`;
 
         rens.push(polyline);
       });
     } else {
-      let [x, y] = v.geometry[0][0].origin;
-      let crossSize = 10;
-      let cross = svg`
-        <g  
-          id="${k}:polyline:toolpath"
-          vector-effect="non-scaling-stroke" 
-          stroke="red"
-          stroke-width="3px"
-          fill="none"
-        >
-          <polyline points="${x},${y + crossSize} ${x},${y - crossSize}"/>
-          <polyline points="${x - crossSize},${y} ${x + crossSize},${y}"/>
-        </g>`;
+      toolpath.geometry.forEach(pl => {
+        let [x, y] = pl[0];
+        let crossSize = 10;
+        let cross = svg`
+          <g  
+            id="${k}:polyline:toolpath"
+            vector-effect="non-scaling-stroke" 
+            stroke="red"
+            stroke-width="3px"
+            fill="none"
+          >
+            <polyline points="${x},${y + crossSize} ${x},${y - crossSize}"/>
+            <polyline points="${x - crossSize},${y} ${x + crossSize},${y}"/>
+          </g>`;
 
-      rens.push(cross);
+        rens.push(cross);
+      })
     }
   });
 

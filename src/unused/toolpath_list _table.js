@@ -1,8 +1,7 @@
 import { html } from "https://cdn.pika.dev/lit-html@^1.1.2";
 
 export const toolpath_list = state => {
-  let rows = state.toolpaths.map(toolpath => {
-    let k = toolpath.id;
+  let rows = Object.entries(state.toolpaths).map(([k, toolpath]) => {
     
     return html`
       <tr>

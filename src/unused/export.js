@@ -7,7 +7,7 @@ import * as utils from "../utils.js";
 
 const download_gcode = ({ toolpaths, filename }) => {
   let text = [];
-  toolpaths.forEach(path => {
+  Object.entries(toolpaths).forEach((id, path) => {
     if (path.selected) {
       // if(path.cutSelected) {
       let geometry = path.geometry;

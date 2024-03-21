@@ -35,7 +35,7 @@ export const drillGcode = (center, params) => {
     ...preamble,
     "(end of preamble)",
     `G1 Z${params.jogHeight} F${params.jogRate}`,
-    `G0 X${center[0][0].origin[0]} Y${center[0][0].origin[1]}`,
+    `G0 X${center[0]} Y${center[1]}`,
     `G1 Z-${params.cutDepth} F${params.plungeRate}`, //plunge rate
     `G1 Z${params.jogHeight} F${params.jogRate}`,
   ]

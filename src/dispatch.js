@@ -17,7 +17,7 @@ import { plsInBoundingBox } from "./plsInBoundingBox.js";
 
 const copy = obj => JSON.parse(JSON.stringify(obj));
 
-let state = {};
+export let state = {};
 // let cache = new makeCache();
 export const dispatch = (action, args = {}, rerender = true) => {
   // console.log(action);
@@ -31,6 +31,27 @@ export const dispatch = (action, args = {}, rerender = true) => {
   action = action[0];
 
   switch (action) {
+    case "DRAG_START":
+      state.toolpath_drag = { dragged: args.dragged };
+      break;
+    case "DRAG_OVER":
+      state.toolpath_drag.target = args.target;
+      break;
+    case "DROP":
+      const { dragged, target } = state.toolpath_drag;
+      if (dragged !== target) {
+        // Find the index of the dragged and target toolpaths
+        const draggedIndex = state.toolpaths.findIndex(tp => tp.id === dragged);
+        const targetIndex = state.toolpaths.findIndex(tp => tp.id === target);
+
+        // Remove the dragged toolpath from its original position
+        const [reorderedToolpath] = state.toolpaths.splice(draggedIndex, 1);
+
+        // Insert the dragged toolpath at the target position
+        state.toolpaths.splice(targetIndex, 0, reorderedToolpath);
+      }
+      state.toolpath_drag = {};
+      break;
     case "INIT":
       console.log("Initializing Workspace");
       state = args.state;
@@ -115,41 +136,11 @@ export const dispatch = (action, args = {}, rerender = true) => {
       utils.download(`${filename}.bbjs`, JSON.stringify(state));
       break;
     case "UPLOAD_BBJS": // TODO
-      // let contours = {};
-      // let idMap = {};
+      const newState = args.state;
 
-      // Object.keys(args.state.contours).forEach(id => {
-      //   let c = args.state.contours[id];
-      //   let newID = utils.makeID();
-      //   idMap[id] = newID;
-      //   contours[newID] = c;
-      // });
+      state.contours = newState.contours
+      state.toolpaths = newState.toolpaths;
 
-      // let toolpaths = args.state.toolpaths.map(path => {
-      //   let newID = utils.makeID();
-      //   idMap[path.id] = newID;
-      //   path.id = newID;
-      //   path.sourceGeometryID = idMap[path.sourceGeometryID];
-
-      //   return path;
-      // });
-
-      // toolpaths.forEach(path => {
-      //   console.log(path.group, idMap[path.group]);
-      //   path.group = idMap[path.group];
-      // });
-
-      // state.contours = {
-      //   ...state.contours,
-      //   ...contours
-      // };
-
-      // state.toolpaths = [...state.toolpaths, ...toolpaths];
-
-      // state.filename = args.state.filename;
-
-      // clear file input
-      document.getElementById("contentFile").value = null;
       document.getElementById("recenter").click();
       break;
     case "UPLOAD_SVG":

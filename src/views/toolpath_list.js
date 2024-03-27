@@ -11,30 +11,7 @@ export const toolpath_list = state => {
     if (toolpath.id !== toolpath.group) return "";
 
     return html`
-      <div 
-        class="${c}" 
-        id="tablerow:${k}"
-        draggable="true" 
-        @dragstart=${(e) => {
-          let id = e.target.id.split(":")[1];
-          dispatch("DRAGGED", {dragged: id});
-        }}
-        @dragover=${e => {
-          e.preventDefault();
-
-          let row = e.target.parentElement;
-          let id = row.id;
-          if (id.includes("tablerow")) {
-            // row.classList.add("hoveredRow");
-            // should maybe add drag target state
-            id = id.split(":")[1];
-            dispatch("DRAG_TARGET", {target: id});
-          }
-        }}
-        @dragend=${e => {
-          dispatch("REORDER");
-        }}
-      >
+      <div class="${c}" id="tablerow:${k}" data-tablerow=${k} toolpath >
         <div class="rTableCell">${toolpath.parameters.name}</div>
         <div class="rTableCell">${toolpath.type}</div>
         <div class="rTableCell">
@@ -73,6 +50,44 @@ export const toolpath_list = state => {
       <div
         class="rTableBody"
         id="rTableBody"
+        @dragstart=${e => {
+          if (e.target.hasAttribute('data-tablerow')) {
+            dispatch("DRAG_START", { dragged: e.target.getAttribute('data-tablerow') });
+          }
+        }}
+        @dragover=${e => {
+          e.preventDefault();
+          const targetRow = e.target.closest('[data-tablerow]');
+          if (targetRow) {
+            dispatch("DRAG_OVER", { target: targetRow.getAttribute('data-tablerow') });
+          }
+        }}
+        @drop=${e => {
+          e.preventDefault();
+          const targetRow = e.target.closest('[data-tablerow]');
+          if (targetRow) {
+            dispatch("DROP", { target: targetRow.getAttribute('data-tablerow') });
+          }
+        }}
+        @dragstart=${e => {
+          if (e.target.hasAttribute('data-tablerow')) {
+            dispatch("DRAG_START", { dragged: e.target.getAttribute('data-tablerow') });
+          }
+        }}
+        @dragover=${e => {
+          e.preventDefault();
+          const targetRow = e.target.closest('[data-tablerow]');
+          if (targetRow) {
+            dispatch("DRAG_OVER", { target: targetRow.getAttribute('data-tablerow') });
+          }
+        }}
+        @drop=${e => {
+          e.preventDefault();
+          const targetRow = e.target.closest('[data-tablerow]');
+          if (targetRow) {
+            dispatch("DROP", { target: targetRow.getAttribute('data-tablerow') });
+          }
+        }}
         @wheel=${e => {
           // console.log("why aren't you scrolling");
           // TODO: Why do I need this hack?

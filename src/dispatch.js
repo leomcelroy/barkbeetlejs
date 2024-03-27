@@ -31,27 +31,6 @@ export const dispatch = (action, args = {}, rerender = true) => {
   action = action[0];
 
   switch (action) {
-    case "DRAG_START":
-      state.toolpath_drag = { dragged: args.dragged };
-      break;
-    case "DRAG_OVER":
-      state.toolpath_drag.target = args.target;
-      break;
-    case "DROP":
-      const { dragged, target } = state.toolpath_drag;
-      if (dragged !== target) {
-        // Find the index of the dragged and target toolpaths
-        const draggedIndex = state.toolpaths.findIndex(tp => tp.id === dragged);
-        const targetIndex = state.toolpaths.findIndex(tp => tp.id === target);
-
-        // Remove the dragged toolpath from its original position
-        const [reorderedToolpath] = state.toolpaths.splice(draggedIndex, 1);
-
-        // Insert the dragged toolpath at the target position
-        state.toolpaths.splice(targetIndex, 0, reorderedToolpath);
-      }
-      state.toolpath_drag = {};
-      break;
     case "INIT":
       console.log("Initializing Workspace");
       state = args.state;
@@ -76,56 +55,6 @@ export const dispatch = (action, args = {}, rerender = true) => {
       break;
     case "SUGGEST_BIT":
       suggest_bit(state, args);
-      break;
-    case "DRAG_TARGET": // TODO
-      // if (
-      //   document.getElementById(`tablerow:${state.toolpath_drag.target}`) !==
-      //   null
-      // ) {
-      //   document
-      //     .getElementById(`tablerow:${state.toolpath_drag.target}`)
-      //     .classList.remove("hoveredRow");
-      // }
-      // document
-      //   .getElementById(`tablerow:${args.target}`)
-      //   .classList.add("hoveredRow");
-
-      // state.toolpath_drag.target = args.target;
-
-      // rerender = false;
-      break;
-    case "DRAGGED": // TODO
-      // state.toolpath_drag.dragged = args.dragged;
-      break;
-    case "REORDER": // TODO
-      // let { target, dragged } = state.toolpath_drag;
-      // // console.log("move", dragged, "over", target);
-
-      // let draggedIndex, targetIndex;
-      // targetIndex = target === "LAST" ? state.toolpaths.length : undefined;
-      // state.toolpaths.forEach((toolpath, i) => {
-      //   if (toolpath.id === dragged) draggedIndex = i;
-      //   if (toolpath.id === target) targetIndex = i;
-      // });
-
-      // // console.log(draggedIndex, targetIndex);
-
-      // let draggedToolpathGroup = state.toolpaths.filter(p => p.group === dragged);
-      // let newToolpaths = state.toolpaths.filter(p => p.group !== dragged);
-      // let index = draggedIndex < targetIndex ? targetIndex - 1 : targetIndex;
-
-      // newToolpaths.splice(index, 0, ...draggedToolpathGroup);
-      // state.toolpaths = newToolpaths;
-
-      // document
-      //   .getElementById(`tablerow:${state.toolpath_drag.target}`)
-      //   .classList.remove("hoveredRow");
-
-      // state.toolpath_drag = {
-      //   target: undefined,
-      //   dragged: undefined
-      // };
-
       break;
     case "RECALCULATE":
       recalculate(state, args);

@@ -47,7 +47,7 @@ const uploadBBJS = (file) => {
     let text = event.target.result;
     let state = JSON.parse(text);
 
-    dispatch("UPLOAD_BBJS", {state})
+    dispatch("UPLOAD_BBJS", { state });
 
   };
 

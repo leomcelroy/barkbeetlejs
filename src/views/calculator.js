@@ -20,10 +20,10 @@ export const calculator = state => {
           <option value="hardwood">hardwood</option>
           <option value="plastic_roughing">plastic_roughing</option>
           <option value="plastic_finishing">plastic_finishing</option>
-          <option value="aluminum_roughing">aluminum_roughing</option>
-          <option value="aluminum_finishing">aluminum_finishing</option>
-          <option value="steel_roughing">steel_roughing</option>
-          <option value="steel_finishing">steel_finishing</option>
+          <!-- <option value="aluminum_roughing">aluminum_roughing</option> -->
+          <!-- <option value="aluminum_finishing">aluminum_finishing</option> -->
+          <!-- <option value="steel_roughing">steel_roughing</option> -->
+          <!-- <option value="steel_finishing">steel_finishing</option> -->
         </select>
         <br />
         Thickness:

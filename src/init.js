@@ -3,9 +3,10 @@ export const init = (options = {}) => {
   return {
     debug: true,
     contours: {},
-    toolpaths: [],
     selected: [],
+    toolpaths: {},
     selectedToolpaths: new Set(),
+    toolpathOrder: [],
     material: "wood",
     thickness: 0,
     flutes: 0,

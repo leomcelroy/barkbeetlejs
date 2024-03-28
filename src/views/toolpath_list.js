@@ -1,118 +1,77 @@
 import { html } from "../../libs/lit-html.bundle.js";
 
 export const toolpath_list = state => {
-  let rows = Object.entries(state.toolpaths).map(([k, toolpath], i) => {
-
-    let c = "rTableRow";
-    if (state.toolpath_drag.target === k) {
-      c += " hoveredRow";
-    }
-
-    if (toolpath.id !== toolpath.group) return "";
-
-    return html`
-      <div class="${c}" id="tablerow:${k}" data-tablerow=${k} toolpath >
-        <div class="rTableCell">${toolpath.parameters.name}</div>
-        <div class="rTableCell">${toolpath.type}</div>
-        <div class="rTableCell">
-          <button
-            @click=${() =>
-              dispatch(`EDIT_${toolpath.type.toUpperCase()}`, { id: k })}
-          >
-            edit
-          </button>
-        </div class="rTableCell">
-        <div class="rTableCell">
-          <input
-            id="checkbox:${k}"
-            @click=${() => dispatch("SELECT_TOOLPATH", { id: k })}
-            type="checkbox"
-            .checked="${state.selectedToolpaths.has(k)}"
-          />
-        </div>
-      </div>
-    `;
-  });
-
-  let endClass = "rTableRow endstop";
-  if (state.toolpath_drag.target === "LAST") {
-    endClass += " hoveredRow";
-  }
+  const rows = Object.entries(state.toolpaths).map((...args) => drawRow(args, state));
 
   return html`
-    <div class="rTable">
-      <div class="rTableRow">
-        <div class="rTableHead">name</div>
-        <div class="rTableHead">type</div>
-        <div class="rTableHead">modify</div>
-        <div class="rTableHead">select/view</div>
-      </div>
-      <div
-        class="rTableBody"
-        id="rTableBody"
-        @dragstart=${e => {
-          if (e.target.hasAttribute('data-tablerow')) {
-            dispatch("DRAG_START", { dragged: e.target.getAttribute('data-tablerow') });
-          }
-        }}
-        @dragover=${e => {
-          e.preventDefault();
-          const targetRow = e.target.closest('[data-tablerow]');
-          if (targetRow) {
-            dispatch("DRAG_OVER", { target: targetRow.getAttribute('data-tablerow') });
-          }
-        }}
-        @drop=${e => {
-          e.preventDefault();
-          const targetRow = e.target.closest('[data-tablerow]');
-          if (targetRow) {
-            dispatch("DROP", { target: targetRow.getAttribute('data-tablerow') });
-          }
-        }}
-        @dragstart=${e => {
-          if (e.target.hasAttribute('data-tablerow')) {
-            dispatch("DRAG_START", { dragged: e.target.getAttribute('data-tablerow') });
-          }
-        }}
-        @dragover=${e => {
-          e.preventDefault();
-          const targetRow = e.target.closest('[data-tablerow]');
-          if (targetRow) {
-            dispatch("DRAG_OVER", { target: targetRow.getAttribute('data-tablerow') });
-          }
-        }}
-        @drop=${e => {
-          e.preventDefault();
-          const targetRow = e.target.closest('[data-tablerow]');
-          if (targetRow) {
-            dispatch("DROP", { target: targetRow.getAttribute('data-tablerow') });
-          }
-        }}
-        @wheel=${e => {
-          // console.log("why aren't you scrolling");
-          // TODO: Why do I need this hack?
-          let el = document.getElementById("rTableBody");
+    <style>
+     .toolpath-table {
+        display: flex;
+        flex-direction: column;
+        gap: 10px; 
+        padding: 5px;
+        padding-top: 5px; 
+        padding-bottom: 5px; 
+        border-radius: 5px;
+        background: #eaebec;
+        margin-top: 5px;
+        margin-bottom: 5px;
+        max-height: 200px;
+        overflow: auto;
+      }
 
-          // console.log(el.scrollTop, e.movementY, e);
-          el.scroll(0, el.scrollTop + e.deltaY);
-        }}
-      >
-        ${rows}
-        <div
-          class="${endClass}"
-          id="tablerow:LAST"
-          @dragover=${e => {
-            e.preventDefault();
-            dispatch("DRAG_TARGET", {target: "LAST"});
-          }}
-          @dragend=${e => {
-            dispatch("REORDER");
-          }}
-        ></div>
+      .toolpath-row {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr); 
+      }
+
+      .toolpath-table-cell {
+        padding: 2px; 
+      }
+
+      .toolpath-table-headers {
+        font-weight: bold; 
+      }
+    </style>
+    <div class="toolpath-table">
+      <div class="toolpath-row">
+        <div class="toolpath-table-headers">name</div>
+        <div class="toolpath-table-headers">type</div>
+        <div class="toolpath-table-headers">modify</div>
+        <div class="toolpath-table-headers">select/view</div>
       </div>
+      ${rows}
     </div>
   `;
 };
+
+function drawRow([ [k, toolpath], i ], state) {
+
+  return html`
+    <div class="toolpath-row" data-toolpath-id=${k} data-toolpath-index=${i} toolpath>
+      <div class="toolpath-table-cell">${toolpath.parameters.name}</div>
+
+      <div class="toolpath-table-cell">${toolpath.type}</div>
+      
+      <div class="toolpath-table-cell">
+        <button 
+          @click=${() => dispatch(`EDIT_${toolpath.type.toUpperCase()}`, { id: k })}
+          >
+          edit
+        </button>
+      </div>
+
+      <div class="toolpath-table-cell">
+        <input
+          id="checkbox:${k}"
+          @click=${() => dispatch("SELECT_TOOLPATH", { id: k })}
+          type="checkbox"
+          .checked="${state.selectedToolpaths.has(k)}"
+          />
+      </div>
+    </div>
+  `;
+}
 
 
   /* <thead>
@@ -120,6 +79,7 @@ export const toolpath_list = state => {
     <th colspan="5">The table header</th>
 </tr>
 </thead> */
+
 
 // @dragover=${e => {
 //   let row = e.target;
@@ -139,3 +99,24 @@ export const toolpath_list = state => {
 //   let id = e.target.id;
 //   console.log("dropped on", id);
 // }}
+
+/*
+
+  let endClass = "rTableRow endstop";
+  if (state.toolpath_drag.target === "LAST") {
+    endClass += " hoveredRow";
+  }
+
+  <div
+    class="${endClass}"
+    id="tablerow:LAST"
+    @dragover=${e => {
+      e.preventDefault();
+      dispatch("DRAG_TARGET", {target: "LAST"});
+    }}
+    @dragend=${e => {
+      dispatch("REORDER");
+    }}
+  ></div>
+
+  */

@@ -56,6 +56,33 @@ const getSVGpoint = (evt, v0, v1, v2, v3, width, height) => { //should this be a
   //return pt.matrixTransform(svg.getScreenCTM().inverse());
 }
 
+export const getSVGCorners = () => {
+  var el = document.getElementById("inner_svg_viewer");
+
+  const convertCoord = (x, y) => {
+    var pt = el.createSVGPoint();
+    pt.x = x;
+    pt.y = y;
+
+    const converted = pt.matrixTransform(el.getScreenCTM().inverse());
+
+    return [
+      converted.x,
+      converted.y
+    ];
+  }
+
+  const svg = document.querySelector('#svg_viewer');
+  const svgBox = svg.getBoundingClientRect();
+
+  return {
+    lt: convertCoord(svgBox.left, svgBox.top),
+    rt: convertCoord(svgBox.right, svgBox.top),
+    lb: convertCoord(svgBox.left, svgBox.bottom),
+    rb: convertCoord(svgBox.right, svgBox.bottom),
+  };
+}
+
 const deepcopy = (thing) => JSON.parse(JSON.stringify(thing));
 
 const flattenDeep = (arr1) => {

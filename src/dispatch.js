@@ -34,6 +34,9 @@ export const dispatch = (action, args = {}, rerender = true) => {
     case "INIT":
       console.log("Initializing Workspace");
       state = args.state;
+
+      const target = document.getElementById("root");
+      render(view(state), target);
       break;
     case "UPDATE":
       console.log("Updating");
@@ -66,10 +69,12 @@ export const dispatch = (action, args = {}, rerender = true) => {
       break;
     case "UPLOAD_BBJS": // TODO
       const newState = args.state;
-
       state.contours = newState.contours
       state.toolpaths = newState.toolpaths;
-
+      state.selectedToolpaths = new Set(Object.keys(state.toolpaths));
+      ["flutes", "material", "initialized", "toolpathOrder", "units", "defaultParameters"].forEach(key => {
+        state[key] = newState[key];
+      })
       document.getElementById("recenter").click();
       break;
     case "UPLOAD_SVG":
@@ -206,8 +211,31 @@ export const dispatch = (action, args = {}, rerender = true) => {
       )
         break;
 
+      const panZoomMethods = document.getElementById("svg_viewer").panZoomMethods;
+
+      const startArr = panZoomMethods.getPoint(
+        state.selectBox.start.x,
+        state.selectBox.start.y,
+      );
+
+      const endArr = panZoomMethods.getPoint(
+        state.selectBox.end.x,
+        state.selectBox.end.y,
+      );
+
+      const transformedSelectBox = {
+        start: {
+          x: startArr[0],
+          y: startArr[1]
+        },
+        end: {
+          x: endArr[0],
+          y: endArr[1]
+        }
+      }
+
       Object.entries(state.contours).forEach(([id, pls]) => {
-        if (plsInBoundingBox(state.selectBox, pls)) {
+        if (plsInBoundingBox(transformedSelectBox, pls)) {
           dispatch("SELECT", { id }, false);
         }
       });
@@ -453,6 +481,44 @@ function makePocket(state, params) {
     ));
     offsetGeo.push(...currentPass);
   }
+
+  // feel this shouldn't be neccessary but oh well
+  const insidePlsIds = [];
+
+  for (const insideId of state.selected) {
+
+    const geoToCheckAgainst = state.selected
+      .filter(id => id !== insideId)
+      .map(id => state.contours[id][0])
+      ;
+
+    const pls = state.contours[insideId];
+
+    const isInside = isPolylineInside(pls, geoToCheckAgainst);
+
+    if (isInside) {
+      insidePlsIds.push(insideId);
+    }
+
+  }
+
+  const offsetIslands = [];
+  insidePlsIds.forEach(id => {
+    const offsetIslandPls = tk.copy(state.contours[id]);
+    offset(
+      offsetIslandPls, 
+      params.compensatedRadius * params.stepoverPercentage/100,
+      { 
+        arcTolerance: 0.01,
+        endType: "etClosedPolygon" 
+      }
+    )
+
+    tk.union(offsetIslands, offsetIslandPls);
+  });
+
+  tk.union(offsetGeo, offsetIslands);
+
 
   const toolpathId = utils.makeID();
 

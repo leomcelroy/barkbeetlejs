@@ -40,12 +40,6 @@ export const init = (options = {}) => {
     filename: "untitled",
     mouse_down: false,
     mouse_pos: {x: 0, y:0},
-    viewBox: {
-      v0: 0,
-      v1: 0,
-      v2: 500,
-      v3: 500
-    },
     selectBox: {
       start: {x: 0, y: 0},
       end: {x: 0, y: 0}

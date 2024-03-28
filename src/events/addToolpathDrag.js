@@ -5,6 +5,9 @@ export function addToolpathDrag(state) {
   const listen = createListener(body);
 
   listen("mousedown", "[toolpath], [toolpath] > *", e => {
+    const toolpath = e.target.closest("[toolpath]");
+
+    console.log(toolpath.dataset);
     // dispatch("DRAGGED", { dragged: id });
   })
 

@@ -11,10 +11,7 @@ export const view = state => {
     <div
       class="noselect"
       id="grid_container"
-      @wheel=${e => {
-        e.preventDefault();
-        e.stopPropagation();
-      }}
+
     >
       <div id="viewer">
         <div id="viewer_menu">${viewer_menu(state)}</div>

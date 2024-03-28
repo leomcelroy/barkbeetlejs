@@ -6,6 +6,7 @@ body {
   overflow: hidden;
   font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
   font-size: 11pt;
+  overscroll-behavior: none; /*this stops the back swipe*/
 }
 
 .noselect {
@@ -106,58 +107,6 @@ body {
   color: darkred;
 }
 
-.rTable {
-  display: block;
-  width: 100%;
-}
-.rTableHeading, .rTableBody, .rTableFoot, .rTableRow{
-  clear: both;
-}
-.rTableHead, .rTableFoot{
-  /* background-color: #DDD; */
-  font-weight: bold;
-}
-.rTableCell, .rTableHead {
-  /* border: 1px solid #999999; */
-  /* border: collapse; */
-  font-size: 10pt;
-  float: left;
-  height: 18px;
-  overflow: hidden;
-  /* padding: 2px; */
-  width: 25%;
-}
-
-.rTable:after {
-  visibility: hidden;
-  display: block;
-  font-size: 0;
-  content: " ";
-  clear: both;
-  height: 0;
-}
-
-.rTableBody {
-  /* display: block; */
-  overflow-y: scroll;
-  max-height: 200px;
-}
-
-/* table {
-  border: 1px solid black;
-  padding: 0px;
-}
-
-tbody {
-  display:block;
-  max-height: 50px;
-  overflow-y: auto;
-} */
-
-/* #tableHead {
-  background-color: grey;
-} */
-
 .vert-spacer {
   height: 5px;
 }
@@ -194,19 +143,6 @@ button:disabled {
   transition-duration: .2s;
   -webkit-transition-duration: .2s;
   -moz-transition-duration: .2s;
-}
-
-.rTableCell button{
-  font-size: 8pt;
-}
-
-.hoveredRow {
-  border-top: 1px solid blue;
-}
-
-.endstop {
-  width: 100%; 
-  height: 20px;
 }
 
 input {

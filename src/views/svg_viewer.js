@@ -1,6 +1,7 @@
 import { svg } from "../../libs/lit-html.bundle.js";
 import { upload } from "../uploads.js";
-import {originPoint} from "../originPoint.js";
+import { originPoint } from "../originPoint.js";
+import { getSVGCorners } from "../utils.js";
 
 const getSVGpoint = e => {
   var el = document.getElementById("inner_svg_viewer");
@@ -11,32 +12,23 @@ const getSVGpoint = e => {
   return pt.matrixTransform(el.getScreenCTM().inverse());
 };
 
+const drawOrigin = state => {
+  const origin = originPoint(state);
+
+  return svg`
+    <circle 
+      class="transform-group-no-scale"
+      cx="${origin.x}" 
+      cy="${origin.y}" 
+      r=${7} 
+      style="fill:orange;" 
+    />
+  `
+}
+
 export const svg_viewer = state => {
-  let inner_svg_viewer = document.getElementById("inner_svg_viewer");
-  let scaleWithViewer = 0;
-  if (inner_svg_viewer !== null) {
-    let w = Number(inner_svg_viewer.getAttribute("width").replace("px", ""));
-    let viewBox = inner_svg_viewer.getAttribute("viewBox").split(" ");
-    let vw = Number(viewBox[2]);
-    scaleWithViewer = vw / w;
-  };
 
-
-  let origin = originPoint(state);
-
-  const rens = [
-    svg`
-      <circle 
-        class="scaleWithViewer" 
-        transform="scale(${scaleWithViewer})" 
-        transform-origin="${origin.x} ${origin.y}"
-        cx="${origin.x}" 
-        cy="${origin.y}" 
-        r="7" 
-        style="fill:orange;" 
-      />
-    `
-  ];
+  const rens = [];
 
   Object.entries(state.contours).forEach(([k, v]) => {
     // console.log(k, v);
@@ -99,26 +91,10 @@ export const svg_viewer = state => {
     <svg
       id="inner_svg_viewer"
       preserveAspectRatio="xMidYMid meet"
-      width=10000px
-      height=10000px
-      viewBox=${`${state.viewBox.v0} ${state.viewBox.v1} ${state.viewBox.v2} ${state.viewBox.v3}`}
+      width="100%"
+      height="100%"
       @mousedown=${e => {
         state.mouse_down = true;
-        console.log("svgPoint", getSVGpoint(e));
-        // console.log("corner", getSVGcorners(e));
-        var el = document.getElementById("inner_svg_viewer");
-        let w = el.clientWidth;
-        let h = el.clientHeight;
-
-        let xFactor, yFactor;
-        if (w > h) {
-          xFactor = state.viewBox.v2 / w;
-          yFactor = state.viewBox.v3 / h;
-        } else {
-          // h > w or equal
-          xFactor = state.viewBox.v2 / w;
-          yFactor = state.viewBox.v3 / h;
-        }
 
         if (e.target.id.includes("polyline")) {
           dispatch("SELECT", { id: e.target.id.split(":")[0] });
@@ -135,94 +111,16 @@ export const svg_viewer = state => {
         if (e.target.id.includes("inner_svg_viewer") && e.shiftKey) {
           dispatch("START_BOX", { start: getSVGpoint(e) });
         }
-
-        // console.log("ctm", el.getScreenCTM(), xFactor, yFactor);
       }}
       @mousemove=${e => {
         state.mouse_pos = getSVGpoint(e);
         if (state.mouse_down && e.shiftKey) {
           dispatch("END_BOX", { end: state.mouse_pos });
-        } else if (state.mouse_down) {
-          // svg pan, translate
-          var el = document.getElementById("inner_svg_viewer");
-
-          let xFactor = state.viewBox.v2 / (el.clientWidth - 6);
-          let yFactor = state.viewBox.v3 / (el.clientHeight - 6);
-
-          let scale = xFactor > yFactor ? xFactor : yFactor;
-
-          state.viewBox.v0 -= e.movementX * scale;
-          state.viewBox.v1 -= e.movementY * scale;
-
-          el.setAttribute(
-            "viewBox",
-            `${state.viewBox.v0} ${state.viewBox.v1} ${state.viewBox.v2} ${state.viewBox.v3}`
-          );
-        }
+        } 
       }}
       @mouseup=${e => {
         state.mouse_down = false;
         window.dispatch("CLEAR_BOX");
-      }}
-      @wheel=${e => {
-        // scroll svg viewbox
-        e.preventDefault();
-
-        let scaleFactor = 1;
-        if (e.deltaY > 0) {
-          scaleFactor = 1.03;
-        } else {
-          scaleFactor = 0.97;
-        }
-
-        state.viewBox.v2 *= scaleFactor;
-        state.viewBox.v3 *= scaleFactor;
-
-        var el = document.getElementById("inner_svg_viewer");
-        let w = el.clientWidth;
-        let h = el.clientHeight;
-
-        let xFactor, yFactor, s;
-
-        var rect = el.getBoundingClientRect();
-        var x = e.clientX - rect.left; //x position within the element.
-        var y = e.clientY - rect.top; //y position within the element.
-
-        // console.log("% of screen", "x", x/w, "y", y/h);
-        if (w > h) {
-          s = Math.abs(0.5 - x / w); //*Math.abs(1 - aspectRatio);
-          xFactor = state.viewBox.v2 / w;
-          yFactor = state.viewBox.v3 / h;
-        } else {
-          // h > w or equal
-          s = Math.abs(0.5 - y / h); //*Math.abs(1 - 1/aspectRatio);
-          xFactor = state.viewBox.v2 / w;
-          yFactor = state.viewBox.v3 / h;
-        }
-
-        let svgPoint = getSVGpoint(e);
-
-        state.viewBox.v0 = svgPoint.x - x * xFactor; // this is affected by the aspect ratio of svg
-        state.viewBox.v1 = svgPoint.y - y * yFactor; // this is affected by the aspect ratio of svg
-
-        el.setAttribute(
-          "viewBox",
-          `${state.viewBox.v0} ${state.viewBox.v1} ${state.viewBox.v2} ${state.viewBox.v3}`
-        );
-
-        let w2 = Number(el.getAttribute("width").replace("px", ""));
-        let vw = state.viewBox.v2;
-        let headScale = vw / w2;
-
-        let els = document.getElementsByClassName("scaleWithViewer");
-        for (let i = 0; i < els.length; i++) {
-          let current = els[i].getAttribute("transform");
-          current = current.replace(
-            /scale\([0-9]*.*[0-9]*\)/,
-            `scale(${headScale})`
-          );
-          els[i].setAttribute("transform", current);
-        }
       }}
       @dragenter=${e => {
         e.preventDefault();
@@ -247,16 +145,19 @@ export const svg_viewer = state => {
         upload(file);
       }} 
     >
-      ${rens}
+      <g class="transform-group">
+        ${rens}
+        ${drawOrigin(state)}
+      </g>
       <path 
-        id="selectBox"
-        d="
-          M ${state.selectBox.start.x} ${state.selectBox.start.y} 
-          L ${state.selectBox.end.x} ${state.selectBox.start.y} 
-          L ${state.selectBox.end.x} ${state.selectBox.end.y}     
-          L ${state.selectBox.start.x} ${state.selectBox.end.y}
-        "
-      />
+          id="selectBox"
+          d="
+            M ${state.selectBox.start.x} ${state.selectBox.start.y} 
+            L ${state.selectBox.end.x} ${state.selectBox.start.y} 
+            L ${state.selectBox.end.x} ${state.selectBox.end.y}     
+            L ${state.selectBox.start.x} ${state.selectBox.end.y}
+          "
+        />
     </svg>
   `;
 };

@@ -1,6 +1,7 @@
 import { html } from "../../libs/lit-html.bundle.js";
 import { upload } from "../uploads.js";
 import tk from "../drawingToolkit/toolkit.js";
+import { getSVGCorners } from "../utils.js";
 
 // outline
 
@@ -48,48 +49,16 @@ export const viewer_menu = state => {
     <button 
       id="recenter"
       @click=${() => {
-
-        var svg = document.getElementById("inner_svg_viewer");
-        let viewer = document.getElementById("svg_viewer");
+        const svgViewer = document.getElementById("svg_viewer");
 
         const pls = Object.values(state.contours).flat();
 
-        let { xMin, xMax, yMin, yMax } = tk.bounds(pls);
+        const { xMin, xMax, yMin, yMax } = tk.bounds(pls);
 
-        let margin = 100;
-
-        let newWidth =
-          Math.abs(xMax - xMin) /
-          (viewer.clientWidth / svg.width.baseVal.value);
-        let newHeight =
-          Math.abs(yMax - yMin) /
-          (viewer.clientHeight / svg.height.baseVal.value);
-        let v2v3 = newWidth > newHeight ? newWidth : newHeight;
-
-        state.viewBox.v0 = xMin;
-        state.viewBox.v1 = yMin;
-        // console.log(xMax, yMax);
-        state.viewBox.v2 = v2v3;
-        state.viewBox.v3 = v2v3;
-
-        svg.setAttribute(
-          "viewBox",
-          `${state.viewBox.v0} ${state.viewBox.v1} ${state.viewBox.v2} ${state.viewBox.v3}`
-        );
-
-        let w2 = Number(svg.getAttribute("width").replace("px", ""));
-        let vw = state.viewBox.v2;
-        let headScale = vw / w2;
-
-        let els = document.getElementsByClassName("scaleWithViewer");
-        for (let i = 0; i < els.length; i++) {
-          let current = els[i].getAttribute("transform");
-          current = current.replace(
-            /scale\([0-9]*.*[0-9]*\)/,
-            `scale(${headScale})`
-          );
-          els[i].setAttribute("transform", current);
-        }
+        svgViewer.panZoomMethods.setScaleXY({
+          x: [xMin, xMax],
+          y: [yMin, yMax]
+        })
       }}
     >
       recenter

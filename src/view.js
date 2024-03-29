@@ -8,11 +8,7 @@ import { toolpath_list } from "./views/toolpath_list.js";
 export const view = state => {
   
   return html`
-    <div
-      class="noselect"
-      id="grid_container"
-
-    >
+    <div class="noselect" id="grid_container">
       <div id="viewer">
         <div id="viewer_menu">${viewer_menu(state)}</div>
         <div id="svg_viewer">${svg_viewer(state)}</div>

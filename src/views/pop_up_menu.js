@@ -106,10 +106,10 @@ export const pop_up_menu = state => {
           placeholder="${params.jogHeight}"
         />
         <br /><br />
-        <div
-        style="${state.popUpType.type !== "drill" ? "" : "display:none;"}"
-        >
-          Auto Dogbone (WIP!):
+        
+       
+        <div style="${state.popUpType.type !== "drill" ? "" : "display:none;"}">
+          Auto Dogbone (Beta, Don't Use):
           <input
             type="checkbox"
             id="autoDogbones"
@@ -117,6 +117,7 @@ export const pop_up_menu = state => {
           />
           <br /><br />
         </div>
+
 
         <div
           style="${

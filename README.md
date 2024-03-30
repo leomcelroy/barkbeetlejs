@@ -12,6 +12,8 @@ TODO
 - [] sort toolpaths
 - [] make ui nicer
 - [] climb and conventional
+- [] add working indication
+- [] indicate scale somehow
 
 MAYBE
 

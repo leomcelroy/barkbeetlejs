@@ -1,7 +1,7 @@
 // initial state
 export const init = (options = {}) => {
   return {
-    debug: true,
+    debug: false,
     contours: {},
     selected: [],
     toolpaths: {},

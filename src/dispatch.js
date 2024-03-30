@@ -11,6 +11,7 @@ import { plsInBoundingBox } from "./plsInBoundingBox.js";
 import { makeProfile } from "./makeProfile.js";
 import { makePocket } from "./makePocket.js";
 import { profilePocketWorker } from "./profilePocketWorker.js";
+import tk from "./drawingToolkit/toolkit.js";
 
 const copy = obj => JSON.parse(JSON.stringify(obj));
 

@@ -49,10 +49,6 @@ export const init = (options = {}) => {
       type: "",
       default: true
     },
-    toolpath_drag: {
-      dragged: undefined,
-      target: undefined
-    },
     ...options
   }
 };

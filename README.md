@@ -9,10 +9,6 @@ Here is a video [demo](https://drive.google.com/file/d/1eN-_HpR6qWaZJw1ziHChJyFL
 
 TODO
 
-- [] add toolpath ordering
-  - add toolpath ids to order in state
-  - remove them when toolpaths are deleted
-  - drag to reorder
 - [] move toolpath eval to web worker
 - [] climb and conventional
 
@@ -31,3 +27,7 @@ DONE
 - [x] fix delete toolpath when geometry deleted
 - [x] remove group leader and id
 - [x] fix edit vs create toolpath
+- [x] add toolpath ordering
+  - add toolpath ids to order in state
+  - remove them when toolpaths are deleted
+  - drag to reorder

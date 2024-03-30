@@ -117,6 +117,9 @@ export const dispatch = (action, args = {}, rerender = true) => {
     case "DELETE_TOOLPATHS":
       [...state.selectedToolpaths].forEach(toolpathId => {
         delete state.toolpaths[toolpathId];
+
+        const indexToRemove = state.toolpathOrder.indexOf(toolpathId);
+        state.toolpathOrder.splice(indexToRemove, 1);
       })
 
       state.selectedToolpaths = new Set();
@@ -131,6 +134,9 @@ export const dispatch = (action, args = {}, rerender = true) => {
 
           delete state.toolpaths[toolpathId];
           state.selectedToolpaths.delete(toolpathId);
+
+          const indexToRemove = state.toolpathOrder.indexOf(toolpathId);
+          state.toolpathOrder.splice(indexToRemove, 1);
         })
       });
 
@@ -138,7 +144,12 @@ export const dispatch = (action, args = {}, rerender = true) => {
       break;
     case "DOWNLOAD_GCODE":
       let text = [];
-      Object.entries(state.toolpaths).forEach(([k, path]) => {
+      Object.entries(state.toolpaths).sort((a, b) => {
+        const i = state.toolpathOrder.indexOf(a[0]);
+        const j = state.toolpathOrder.indexOf(b[0]);
+
+        return i - j;
+      }).forEach(([k, path]) => {
         if (state.selectedToolpaths.has(k)) {
           let geometry = copy(path.geometry);
 
@@ -315,6 +326,7 @@ export const dispatch = (action, args = {}, rerender = true) => {
           const toolpathId = utils.makeID();
           state.toolpaths[toolpathId] = makeProfile(state, args.params);
           state.selectedToolpaths.add(toolpathId);
+          state.toolpathOrder.push(toolpathId);
           dispatch("UPDATE");
 
         } else if (state.popUpType.createOrEdit === "edit") {
@@ -334,6 +346,7 @@ export const dispatch = (action, args = {}, rerender = true) => {
           const toolpathId = utils.makeID();
           state.toolpaths[toolpathId] = makePocket(state, args.params);
           state.selectedToolpaths.add(toolpathId);
+          state.toolpathOrder.push(toolpathId);
           dispatch("UPDATE");
 
         } else if (state.popUpType.createOrEdit === "edit") {
@@ -364,6 +377,7 @@ export const dispatch = (action, args = {}, rerender = true) => {
             parameters: { ...state.defaultParameters, ...args.params },
           };
           state.selectedToolpaths.add(toolpathId);
+          state.toolpathOrder.push(toolpathId);
           
         } else if (state.popUpType.createOrEdit === "edit") {
 
@@ -387,6 +401,10 @@ export const dispatch = (action, args = {}, rerender = true) => {
 
       state.showPopUpMenu = false;
       state.selected = [];
+      break;
+    case "RENDER":
+      const root = document.getElementById("root");
+      render(view(state), root);
       break;
     default:
       console.error("Unknown action requested or no break inserted:", action);

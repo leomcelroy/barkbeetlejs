@@ -1,15 +1,57 @@
 import { createListener } from "../createListener.js";
+import { makePhantom } from "../makePhantom.js";
 
-export function addToolpathDrag(state) {
+export function addToolpathDrag(state, callback) {
   const body = document.body;
   const listen = createListener(body);
 
-  listen("mousedown", "[toolpath], [toolpath] > *", e => {
-    const toolpath = e.target.closest("[toolpath]");
+  let fromIndex = null;
+  let toIndex = null;
 
-    console.log(toolpath.dataset);
-    // dispatch("DRAGGED", { dragged: id });
-  })
+  listen("mousedown", "[toolpath-handle]", e => {
+    const toolpath = e.target.closest("[toolpath]");
+    if (!toolpath) return;
+
+    fromIndex = Number(toolpath.dataset.toolpathIndex);
+
+    makePhantom(e, toolpath);
+  });
+
+  listen("mousemove", "[toolpath], [toolpath] > *", e => {
+    if (fromIndex === null) return;
+    const toolpath = e.target.closest("[toolpath]");
+    // const index = Number(toolpath.dataset.toolpathIndex);
+
+    body.querySelectorAll(".hovered-toolpath").forEach(el => {
+      el.classList.remove("hovered-toolpath");
+    });
+
+    toIndex = Number(toolpath.dataset.toolpathIndex);
+
+    toolpath.classList.add("hovered-toolpath");
+    
+  });
+
+  listen("mouseup", "", e => {
+
+    body.querySelectorAll(".hovered-toolpath").forEach(el => {
+      el.classList.remove("hovered-toolpath");
+    });
+
+    if (fromIndex === null || toIndex === null) {
+      return;
+    }
+
+    if (toIndex < fromIndex) toIndex++;
+
+    if (fromIndex !== toIndex) {
+      callback(fromIndex, toIndex);
+    }
+
+    fromIndex = null;
+    toIndex = null;
+
+  });
 
 
 }

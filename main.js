@@ -9,7 +9,13 @@ import { addPanZoom } from "./src/events/addPanZoom.js";
 window.dispatch = dispatch;
 dispatch("INIT", { state: init() });
 
-addToolpathDrag(state);
+addToolpathDrag(state, (fromIndex, toIndex) => {
+  
+  moveItem(state.toolpathOrder, fromIndex, toIndex);
+  
+  dispatch("RENDER");
+});
+
 const svgViewer = document.querySelector("#svg_viewer");
 const panZoomMethods = addPanZoom(svgViewer);
 svgViewer.panZoomMethods = panZoomMethods;
@@ -27,3 +33,9 @@ const prevent = e => {
 };
 
 const root = document.getElementById("root");
+
+
+function moveItem(arr, fromIndex, toIndex) {
+  const [item] = arr.splice(fromIndex, 1);
+  arr.splice(toIndex, 0, item);
+}

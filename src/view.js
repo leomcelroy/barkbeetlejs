@@ -77,7 +77,7 @@ export const view = state => {
         </div>
 
         <svg width="0" height="0" id="thisIsDumb"></svg>
-        <a style="position: fixed; right: 1em; bottom: 1em;" href="https://www.github.com/leomcelroy/barkbeetlejs">GitHub</a>
+        <a target="_blank" style="color: blue; position: fixed; right: 1em; bottom: 1em;" href="https://www.github.com/leomcelroy/barkbeetlejs">GitHub</a>
       </div>
     </div>
     ${state.showPopUpMenu && pop_up_menu(state)}

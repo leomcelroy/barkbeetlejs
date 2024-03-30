@@ -9,7 +9,8 @@ Here is a video [demo](https://drive.google.com/file/d/1eN-_HpR6qWaZJw1ziHChJyFL
 
 TODO
 
-- [] move toolpath eval to web worker
+- [] sort toolpaths
+- [] make ui nicer
 - [] climb and conventional
 
 MAYBE
@@ -18,6 +19,7 @@ MAYBE
 
 DONE
 
+- [x] move toolpath eval to web worker
 - [x] take away metals if no ramping
 - [x] save and upload
 - [x] fix culling single point lines in affine transformations

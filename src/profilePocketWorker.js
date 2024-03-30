@@ -25,7 +25,7 @@ export function profilePocketWorker(state, params, type) {
   // }
 
   return new Promise(async (resolve) => {
-    const url = `${window.location.origin}${window.location.pathname.slice(1)}/src/profilePocketWorker.js`
+    const url = `${window.location.origin}${window.location.pathname}src/profilePocketWorker.js`
     const worker = new Worker(url, { type: "module" });
 
     // if (cache) GLOBAL_WORKER = worker;

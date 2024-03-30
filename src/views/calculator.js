@@ -49,7 +49,7 @@ export const calculator = state => {
           dispatch("SUGGEST_BIT", {material, materialThickness});
         }}
       >
-        ${state.initialized ? "suggest bit" : "initialize"}
+        ${state.initialized ? "Suggest Bit" : "Initialize"}
       </button>
       <div class="vert-spacer"></div>
       <form id="inputs2">
@@ -100,7 +100,7 @@ export const calculator = state => {
         })}
         ?disabled="${!state.initialized}"
       >
-        re-calculate
+        Re-Calculate
       </button>
       <div class="vert-spacer"></div>
       <br />

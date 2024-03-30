@@ -103,7 +103,7 @@ function drawRow([ [k, toolpath], i ], state) {
       
       <div class="toolpath-table-cell">
         <button @click=${() => dispatch(`EDIT_${toolpath.type.toUpperCase()}`, { id: k })}>
-          edit
+          Edit
         </button>
       </div>
 

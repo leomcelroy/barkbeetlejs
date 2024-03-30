@@ -31,7 +31,7 @@ export const view = state => {
                 <button
                   @click=${() => window.dispatch("EDIT_DEFAULT_SETTINGS")}
                 >
-                  edit default settings
+                  Edit Default Settings
                 </button>
               `
             : html`
@@ -45,31 +45,31 @@ export const view = state => {
             @click=${() => window.dispatch("CREATE_PROFILE")}
             ?disabled="${!state.initialized}"
           >
-            profile
+            Profile
           </button>
           <button
             @click=${() => window.dispatch("CREATE_POCKET")}
             ?disabled="${!state.initialized}"
           >
-            pocket
+            Pocket
           </button>
           <button
             @click=${() => window.dispatch("CREATE_DRILL")}
             ?disabled=${!state.initialized}
           >
-            drill
+            Drill
           </button>
           <br /><br />
 
           <b>Toolpaths</b>
           <br />
           ${toolpath_list(state)}
-          <button @click=${() => window.dispatch("DOWNLOAD_GCODE")}>export</button>
+          <button @click=${() => window.dispatch("DOWNLOAD_GCODE")}>Export</button>
           <button @click=${() => window.dispatch("DELETE_TOOLPATHS")}>
-            delete
+            Delete
           </button>
           <button @click=${() => window.dispatch("SELECT_ALL_TOOLPATHS")}>
-            select/view all
+            Select/View-All
           </button>
         </div>
         <svg width="0" height="0" id="thisIsDumb"></svg>

@@ -25,7 +25,7 @@ export const viewer_menu = state => {
         dispatch("SAVE");
       }}
     >
-      save
+      Save
     </button>
 
     <input
@@ -43,7 +43,7 @@ export const viewer_menu = state => {
     <button 
       @mousedown=${() => document.getElementById("contentFile").click()}
     >
-      upload (bbjs or svg)
+      Upload (bbjs or svg)
     </button>
 
     <button 
@@ -61,11 +61,11 @@ export const viewer_menu = state => {
         })
       }}
     >
-      recenter
+      Recenter
     </button>
 
     Selected: ${state.selected.length}
-    <button @mousedown=${() => dispatch("DELETE_SELECTED")}>delete</button>
+    <button @mousedown=${() => dispatch("DELETE_SELECTED")}>Delete</button>
     ${state.debug ?
       html`
         Debug:

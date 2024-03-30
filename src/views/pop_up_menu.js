@@ -201,7 +201,7 @@ export const pop_up_menu = state => {
             </div>
 
             <button @click=${() => dispatch("CLOSE_POP_UP_MENU")}>
-              cancel
+              Cancel
             </button>
             <button
               @click=${() => {
@@ -241,7 +241,7 @@ export const pop_up_menu = state => {
                 });
               }}
             >
-              ${state.popUpType.type === "default" ? "save" : "create"}
+              ${state.popUpType.type === "default" ? "Save" : "Create"}
             </button>
             <div></div>
           </div>

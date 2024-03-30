@@ -1,5 +1,4 @@
 import { render } from "../libs/lit-html.bundle.js";
-
 import { view } from "./view.js";
 import { suggest_bit, recalculate } from "./actions/millingCalculator.js";
 import * as utils from "./utils.js";
@@ -8,12 +7,10 @@ import { profile, profileGcode } from "./toolpaths/profile.js";
 import { drill, drillGcode } from "./toolpaths/drill.js";
 import { gcodeTransform } from "./gcodeTransform.js";
 import { originPoint } from "./originPoint.js";
-import { convertToPls, convertPlsToContours } from "./convertToPls.js";
-import { isPolylineInside } from "./isPolylineInside.js";
-import tk from "./drawingToolkit/toolkit.js";
-import { expand, difference, offset2, offset, union } from "./geogram/index.js";
-// import { clipperOffsetContour } from "./clipper_offset.js";
 import { plsInBoundingBox } from "./plsInBoundingBox.js";
+import { makeProfile } from "./makeProfile.js";
+import { makePocket } from "./makePocket.js";
+import { profilePocketWorker } from "./profilePocketWorker.js";
 
 const copy = obj => JSON.parse(JSON.stringify(obj));
 
@@ -323,11 +320,27 @@ export const dispatch = (action, args = {}, rerender = true) => {
       } else if (state.popUpType.type === "profile") {
         if (state.popUpType.createOrEdit === "create") {
 
-          const toolpathId = utils.makeID();
-          state.toolpaths[toolpathId] = makeProfile(state, args.params);
-          state.selectedToolpaths.add(toolpathId);
-          state.toolpathOrder.push(toolpathId);
-          dispatch("UPDATE");
+          // const toolpathId = utils.makeID();
+          // state.toolpaths[toolpathId] = makeProfile(state, args.params);
+          // state.selectedToolpaths.add(toolpathId);
+          // state.toolpathOrder.push(toolpathId);
+          // dispatch("UPDATE");
+
+          profilePocketWorker(
+            {
+              selected: state.selected,
+              contours: state.contours,
+              defaultParameters: state.defaultParameters,
+            }, 
+            args.params, 
+            "profile"
+          ).then(result => {
+            const toolpathId = utils.makeID();
+            state.toolpaths[toolpathId] = result;
+            state.selectedToolpaths.add(toolpathId);
+            state.toolpathOrder.push(toolpathId);
+            dispatch("UPDATE");
+          });
 
         } else if (state.popUpType.createOrEdit === "edit") {
 
@@ -343,11 +356,27 @@ export const dispatch = (action, args = {}, rerender = true) => {
       } else if (state.popUpType.type === "pocket") {
         if (state.popUpType.createOrEdit === "create") {
 
-          const toolpathId = utils.makeID();
-          state.toolpaths[toolpathId] = makePocket(state, args.params);
-          state.selectedToolpaths.add(toolpathId);
-          state.toolpathOrder.push(toolpathId);
-          dispatch("UPDATE");
+          // const toolpathId = utils.makeID();
+          // state.toolpaths[toolpathId] = makePocket(state, args.params);
+          // state.selectedToolpaths.add(toolpathId);
+          // state.toolpathOrder.push(toolpathId);
+          // dispatch("UPDATE");
+
+          profilePocketWorker(
+            {
+              selected: state.selected,
+              contours: state.contours,
+              defaultParameters: state.defaultParameters,
+            }, 
+            args.params, 
+            "pocket"
+          ).then(result => {
+            const toolpathId = utils.makeID();
+            state.toolpaths[toolpathId] = result;
+            state.selectedToolpaths.add(toolpathId);
+            state.toolpathOrder.push(toolpathId);
+            dispatch("UPDATE");
+          });
 
         } else if (state.popUpType.createOrEdit === "edit") {
           
@@ -417,149 +446,5 @@ export const dispatch = (action, args = {}, rerender = true) => {
 };
 
 
-function makeProfile(state, params) {
-  const geometryToOffset = state.selected.map(id => state.contours[id][0]);
-
-  const insidePls = [];
-
-  for (const insideId of state.selected) {
-
-    const geoToCheckAgainst = state.selected
-      .filter(id => id !== insideId)
-      .map(id => state.contours[id][0])
-      ;
-
-    
-    const pls = state.contours[insideId];
-
-    const isInside = isPolylineInside(pls, geoToCheckAgainst);
-
-    if (isInside) {
-      insidePls.push(insideId);
-    }
-
-  }
-
-  const offsetDir = {
-    "outside": (id) => {
-      return insidePls.includes(id) ? -1 : 1;
-    },
-    "inside": (id) => {
-      return insidePls.includes(id) ? 1 : -1;
-    },
-    "none": () => 0
-  }[params.offsetDirection];
-
-  const offsetGeo = [];
-  geometryToOffset.forEach((pl, i) => {
-    const id = state.selected[i];
-    offsetGeo.push(...offset(
-      [ pl ],
-      offsetDir(id)*params.compensatedRadius, // sign of this is inside or outside
-      { 
-        arcTolerance: 0.001,
-        endType: "etClosedPolygon" 
-      }
-    ));
-  });
-
-  const toolpathId = utils.makeID();
-
-  return {
-    type: "profile",
-    sourceGeometryIds: copy(state.selected),
-    geometry: offsetGeo,
-    parameters: { ...state.defaultParameters, ...params },
-  };
-}
-
-function makePocket(state, params) {
-  const geometryToOffset = state.selected.map(id => state.contours[id][0]);
-
-  // const firstPass = copy(offset(
-  //   geometryToOffset,
-  //   -params.compensatedRadius, 
-  //   { 
-  //     arcTolerance: 0.001,
-  //     endType: "etClosedPolygon" 
-  //   }
-  // ));
-  // const offsetGeo = [...firstPass];
-  // let currentPass = firstPass;
-  // while (currentPass.length > 0) {
-  //   currentPass = copy(offset(
-  //     geometryToOffset,
-  //     -params.compensatedRadius * params.stepoverPercentage/100, 
-  //     { 
-  //       arcTolerance: 0.001,
-  //       endType: "etClosedPolygon" 
-  //     }
-  //   ));
-  //   offsetGeo.push(...currentPass);
-  // }
-
-  const offsetGeo = [];
-  let count = 1;
-  let currentPass = geometryToOffset;
-  while (currentPass.length > 0) {
-    currentPass = offset(
-      copy(geometryToOffset),
-      -params.compensatedRadius * (count === 1 ? 1 : params.stepoverPercentage/100) * count, 
-      { 
-        arcTolerance: 0.001,
-        endType: "etClosedPolygon" 
-      }
-    );
-    offsetGeo.push(...currentPass);
-    count++;
-  }
 
 
-
-  // feel this shouldn't be neccessary but oh well
-  const insidePlsIds = [];
-
-  for (const insideId of state.selected) {
-
-    const geoToCheckAgainst = state.selected
-      .filter(id => id !== insideId)
-      .map(id => state.contours[id][0])
-      ;
-
-    const pls = state.contours[insideId];
-
-    const isInside = isPolylineInside(pls, geoToCheckAgainst);
-
-    if (isInside) {
-      insidePlsIds.push(insideId);
-    }
-
-  }
-
-  const offsetIslands = [];
-  insidePlsIds.forEach(id => {
-    const offsetIslandPls = tk.copy(state.contours[id]);
-    offset(
-      offsetIslandPls, 
-      params.compensatedRadius,
-      { 
-        arcTolerance: 0.001,
-        endType: "etClosedPolygon" 
-      }
-    )
-
-    tk.union(offsetIslands, offsetIslandPls);
-  });
-
-  tk.union(offsetGeo, offsetIslands);
-
-
-  const toolpathId = utils.makeID();
-
-  return {
-    type: "pocket",
-    sourceGeometryIds: copy(state.selected),
-    geometry: offsetGeo,
-    parameters: { ...state.defaultParameters, ...params },
-  };
-}

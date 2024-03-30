@@ -9,10 +9,12 @@ export const view = state => {
   
   return html`
     <div class="noselect" id="grid_container">
+
       <div id="viewer">
         <div id="viewer_menu">${viewer_menu(state)}</div>
         <div id="svg_viewer">${svg_viewer(state)}</div>
       </div>
+
       <div id="right_menu">
         <div id="settings">
           ${calculator(state)}
@@ -38,6 +40,7 @@ export const view = state => {
                 <b class="alert">Initialize to Create Toolpaths!</b>
               `}
         </div>
+
         <div id="toolpaths">
           <b>Create Toolpath: </b>
 
@@ -72,7 +75,9 @@ export const view = state => {
             Select/View-All
           </button>
         </div>
+
         <svg width="0" height="0" id="thisIsDumb"></svg>
+        <a style="position: fixed; right: 1em; bottom: 1em;" href="https://www.github.com/leomcelroy/barkbeetlejs">GitHub</a>
       </div>
     </div>
     ${state.showPopUpMenu && pop_up_menu(state)}
